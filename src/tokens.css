@@ -1,0 +1,117 @@
+/*
+  Hallmark — tokens for MY3 Desings
+  Custom Architectural Theme: Charcoal Grey + Moonlight Silver + Signal Red
+  Macrostructure: Split-Studio / Workbench
+  Tone: Precision Architectural CAD Workstation, Leica & Vitra register
+*/
+
+:root,
+[data-theme="charcoal-silver"],
+[data-theme="ivory-emerald"] {
+  /* Moonlight Silver drafting surfaces & Charcoal ink */
+  --color-paper:        #f8fafc;   /* Slate 50 - Moonlight Silver pure drafting sheet */
+  --color-paper-2:      #f1f5f9;   /* Slate 100 - Frosted Moonlight Silver elevated toolbars & panel surfaces */
+  --color-paper-3:      #e2e8f0;   /* Slate 200 - Brushed Moonlight Silver interactive chips, cards & inputs */
+  --color-rule:         #cbd5e1;   /* Slate 300 - Precision silver hairline ruler border */
+  --color-rule-2:       #94a3b8;   /* Slate 400 - Structural silver divider rule */
+  --color-muted:        #64748b;   /* Slate 500 - Technical metadata, dimensions, readouts */
+  --color-neutral:      #475569;   /* Slate 600 - Secondary labels & subheadings */
+  --color-ink-2:        #334155;   /* Slate 700 - Body copy */
+  --color-ink:          #0f172a;   /* Slate 900 - Deep Charcoal Grey ink & headers */
+
+  /* Signal Red — Primary Technical & Architectural Signal */
+  --color-accent:       #dc2626;   /* Pure Architectural Signal Red */
+  --color-accent-hover: #b91c1c;   /* Deep Signal Red */
+  --color-accent-ink:   #ffffff;   /* Pure white text on Signal Red */
+  --color-accent-subtle:#fef2f2;   /* Soft Signal Red tinted background */
+  --color-focus:        #dc2626;
+
+  /* Secondary Signal Red / Crimson */
+  --color-vermilion:       #ef4444; /* Bright Signal Red */
+  --color-vermilion-hover: #dc2626;
+  --color-vermilion-ink:   #ffffff;
+  --color-vermilion-subtle:#fee2e2;
+
+  --color-graphite:     #0b0f17;   /* Deepest Charcoal Obsidian CAD blueprint contrast ground */
+
+  /* Typography */
+  --font-display: "Space Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif:   "Inter", sans-serif;
+  --font-label:   "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  --display-weight: 600;
+  --display-style:  normal;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-md:   1.125rem;
+  --text-lg:   1.375rem;
+  --text-xl:   1.75rem;
+  --text-2xl:  2.25rem;
+  --text-3xl:  2.75rem;
+  --text-display:   clamp(2.5rem, 4.5vw + 0.75rem, 4.5rem);
+  --text-display-s: clamp(1.85rem, 3vw + 0.5rem, 2.75rem);
+
+  --lh-tight:   1.05;
+  --lh-snug:    1.2;
+  --lh-normal:  1.5;
+  --lh-relaxed: 1.65;
+
+  --tracking-display: -0.03em;
+  --tracking-tight:   -0.015em;
+  --tracking-normal:  0;
+  --tracking-label:   0.08em;
+
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6.5rem;
+
+  /* Component shape — tight technical 4px–6px radii */
+  --radius-card:   6px;
+  --radius-pill:   4px;
+  --radius-input:  4px;
+  --rule-card:     1px;
+  --shadow-card:   none;
+
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 200ms;
+  --dur-long:  350ms;
+}
+
+/* Complementary High-Contrast Dark Drafting Mode */
+[data-theme="dark"],
+[data-theme="dark-architectural"] {
+  --color-paper:        #0b0f17;  /* Deepest Obsidian Charcoal Ground */
+  --color-paper-2:      #111827;  /* Charcoal elevated toolbars */
+  --color-paper-3:      #1e293b;  /* Brushed Charcoal interactive panels */
+  --color-rule:         #334155;  /* Silver Slate Hairline border */
+  --color-rule-2:       #475569;  /* Divider */
+  --color-muted:        #94a3b8;  /* Moonlight Silver dimensions & meta */
+  --color-neutral:      #cbd5e1;  /* Moonlight Silver secondary labels */
+  --color-ink-2:        #e2e8f0;  /* Moonlight Silver body text */
+  --color-ink:          #f8fafc;  /* Pure Moonlight Silver text */
+
+  --color-accent:       #ef4444;  /* Radiant Signal Red */
+  --color-accent-hover: #dc2626;
+  --color-accent-ink:   #ffffff;
+  --color-accent-subtle:rgba(239, 68, 68, 0.15);
+
+  --color-vermilion:       #f87171;
+  --color-vermilion-hover: #ef4444;
+  --color-vermilion-ink:   #0f172a;
+  --color-vermilion-subtle:rgba(248, 113, 113, 0.15);
+
+  --color-graphite:     #05080f;
+}

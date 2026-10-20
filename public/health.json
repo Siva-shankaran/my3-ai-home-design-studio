@@ -1,0 +1,8 @@
+{
+  "status": "UP",
+  "service": "my3-ai-home-design-studio",
+  "version": "1.0.0",
+  "framework": "React 19 + Vite 8 + Three.js",
+  "compliance": "TNCDBR-2019 / IS 456 / NBC 2016",
+  "timestamp": "2026-10-20T00:00:00Z"
+}

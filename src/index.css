@@ -1,0 +1,98 @@
+/* Hallmark · macrostructure: Workbench · theme: Ivory-Emerald · tone: architectural-stationery */
+@import "./tokens.css";
+@import "tailwindcss";
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: clip;
+}
+
+/* Hallmark Space Grotesk Display headings */
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  font-style: normal;
+  letter-spacing: var(--tracking-display);
+}
+
+/* Machine readout mono labels & dimensions */
+.font-mono, code, .cad-dim {
+  font-family: var(--font-label);
+  letter-spacing: var(--tracking-label);
+}
+
+/* Swiss Hairline Borders & Rulers */
+.hairline-b {
+  border-bottom: 1px solid var(--color-rule);
+}
+.hairline-t {
+  border-top: 1px solid var(--color-rule);
+}
+.hairline-r {
+  border-right: 1px solid var(--color-rule);
+}
+.hairline-l {
+  border-left: 1px solid var(--color-rule);
+}
+.hairline-border {
+  border: 1px solid var(--color-rule);
+}
+
+/* Architectural grid patterns on Moonlight Silver */
+.cad-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.22) 1px, transparent 1px);
+}
+
+.cad-grid-major {
+  background-size: 120px 120px;
+  background-image: 
+    linear-gradient(to right, rgba(220, 38, 38, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(220, 38, 38, 0.2) 1px, transparent 1px);
+}
+
+/* Dark Blueprint Grid */
+.cad-grid-blueprint {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(239, 68, 68, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(239, 68, 68, 0.15) 1px, transparent 1px);
+}
+
+/* Technical 12-Column Blueprint Ruler */
+.blueprint-ruler {
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(148, 163, 184, 0.3) 0px,
+    rgba(148, 163, 184, 0.3) 1px,
+    transparent 1px,
+    transparent 40px
+  );
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-paper-2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-rule);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-rule-2);
+}
