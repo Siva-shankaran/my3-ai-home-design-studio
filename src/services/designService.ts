@@ -1519,7 +1519,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-1",
         "name": "Office Chair",
-        "category": "living",
+        "category": "office",
         "x": 4.15,
         "y": 30.4,
         "width": 3.5,
@@ -1532,7 +1532,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-2",
         "name": "Toilet",
-        "category": "living",
+        "category": "bath",
         "x": 17.62,
         "y": 7.32,
         "width": 3.5,
@@ -1545,7 +1545,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-3",
         "name": "Single-Sink Vanity",
-        "category": "living",
+        "category": "bath",
         "x": 15.01,
         "y": 5.21,
         "width": 3.5,
@@ -1597,7 +1597,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-7",
         "name": "Straight Kitchen Cabinet Set",
-        "category": "living",
+        "category": "kitchen",
         "x": 26.22,
         "y": 1.46,
         "width": 3.5,
@@ -1610,7 +1610,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-8",
         "name": "Corner Office Desk",
-        "category": "living",
+        "category": "office",
         "x": 3.63,
         "y": 28.61,
         "width": 3.5,
@@ -1623,7 +1623,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-9",
         "name": "Bookshelf",
-        "category": "living",
+        "category": "office",
         "x": 4.49,
         "y": 25.07,
         "width": 3.5,
@@ -1636,7 +1636,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-10",
         "name": "Side-by-Side Washer & Dryer",
-        "category": "living",
+        "category": "laundry",
         "x": 5.31,
         "y": 7.53,
         "width": 3.5,
@@ -1649,7 +1649,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-11",
         "name": "Laundry Sink",
-        "category": "living",
+        "category": "laundry",
         "x": 1.33,
         "y": 8.03,
         "width": 3.5,
@@ -1662,7 +1662,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-12",
         "name": "Straight Kitchen Counter",
-        "category": "living",
+        "category": "kitchen",
         "x": 4.54,
         "y": 7.99,
         "width": 3.5,
@@ -1675,7 +1675,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-13",
         "name": "Built-in Shelf",
-        "category": "living",
+        "category": "bedroom",
         "x": 13.78,
         "y": 2,
         "width": 3.5,
@@ -1688,7 +1688,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-14",
         "name": "Rectangular Rug",
-        "category": "living",
+        "category": "bath",
         "x": 23.25,
         "y": 16.26,
         "width": 3.5,
@@ -1701,7 +1701,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-15",
         "name": "Small Plant",
-        "category": "living",
+        "category": "bath",
         "x": 10.73,
         "y": 18.27,
         "width": 3.5,
@@ -1714,7 +1714,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-16",
         "name": "Rectangular Rug",
-        "category": "living",
+        "category": "bedroom",
         "x": 4.49,
         "y": 28.99,
         "width": 3.5,
@@ -1727,7 +1727,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-17",
         "name": "Built-in Bathtub",
-        "category": "living",
+        "category": "bath",
         "x": 43.39,
         "y": 2.79,
         "width": 3.5,
@@ -1740,7 +1740,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-18",
         "name": "Toilet",
-        "category": "living",
+        "category": "bath",
         "x": 39.67,
         "y": 1.46,
         "width": 3.5,
@@ -1753,7 +1753,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-19",
         "name": "Double-Sink Vanity",
-        "category": "living",
+        "category": "bath",
         "x": 41.61,
         "y": 9.78,
         "width": 3.5,
@@ -1766,7 +1766,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-20",
         "name": "Full Bed",
-        "category": "living",
+        "category": "bedroom",
         "x": 3.46,
         "y": 21.7,
         "width": 3.5,
@@ -1779,7 +1779,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-21",
         "name": "Nightstand",
-        "category": "living",
+        "category": "bedroom",
         "x": 1.12,
         "y": 18.2,
         "width": 3.5,
@@ -1805,7 +1805,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-23",
         "name": "Dresser",
-        "category": "living",
+        "category": "bedroom",
         "x": 7.53,
         "y": 11.28,
         "width": 3.5,
@@ -1818,7 +1818,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-24",
         "name": "Water Heater",
-        "category": "living",
+        "category": "laundry",
         "x": 17.79,
         "y": 5.21,
         "width": 3.5,
@@ -1831,7 +1831,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-25",
         "name": "Cal-King Bed",
-        "category": "living",
+        "category": "bedroom",
         "x": 34.44,
         "y": 17.55,
         "width": 3.5,
@@ -1844,7 +1844,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-26",
         "name": "Clothing Rack",
-        "category": "living",
+        "category": "bedroom",
         "x": 41.45,
         "y": 23.9,
         "width": 3.5,
@@ -1857,7 +1857,7 @@ Generate JSON with BOTH Floor 1 and Floor 2 rooms, doors, windows, and furniture
     {
         "id": "mkt-fix-27",
         "name": "Dresser",
-        "category": "living",
+        "category": "bedroom",
         "x": 43.47,
         "y": 19.86,
         "width": 3.5,

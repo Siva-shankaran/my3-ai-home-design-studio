@@ -34,6 +34,8 @@ interface NavbarProps {
   onOpenTour?: () => void;
   // Maket AI Floorplan Generator Wizard
   onOpenMaketGenerator?: () => void;
+  // Deterministic 3-Concept Architectural Synthesis
+  onOpenConceptGenerator?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -55,7 +57,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleCadStyle,
   isMultiFloorSideBySide = false,
   onToggleSideBySide,
-  onOpenMaketGenerator
+  onOpenMaketGenerator,
+  onOpenConceptGenerator
 }) => {
   const [showLanguagePopover, setShowLanguagePopover] = useState<boolean>(false);
   const t = translations[language];
@@ -215,6 +218,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Right Actions, Language Switcher & Profile */}
       <div className="flex items-center space-x-2 relative font-mono text-xs">
+        {onOpenConceptGenerator && (
+          <button
+            onClick={onOpenConceptGenerator}
+            className="flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/40 text-emerald-700 font-semibold rounded text-[11px] transition cursor-pointer shadow-xs"
+            title="Generate 3 Distinct Architectural Concepts"
+          >
+            <Compass className="w-3.5 h-3.5 text-emerald-600" />
+            <span>3 Concepts</span>
+          </button>
+        )}
+
         {onOpenMaketGenerator && (
           <button
             onClick={onOpenMaketGenerator}

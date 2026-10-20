@@ -4,6 +4,8 @@ import { type Language, getRoomDisplayName, translations } from '../services/i18
 import { materialCatalogService, type MaterialSwatch, type WholeHomeTheme } from '../services/materialCatalogService';
 import { InteriorsCustomizerModal } from './InteriorsCustomizerModal';
 import { InteriorReferenceModal } from './InteriorReferenceModal';
+import { Units } from '../engine/geometry/units';
+import { FurnitureSymbolRenderer } from '../engine/furniture/furnitureLibrary';
 import { 
   ZoomIn, ZoomOut, Maximize2, Move, Square, 
   Trash2, RotateCw, Eye, Ruler, Palette, Columns2,
@@ -66,6 +68,7 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
   const [showFurniture, setShowFurniture] = useState<boolean>(true);
   const [showColumns, setShowColumns] = useState<boolean>(false);
   const [showLabels, setShowLabels] = useState<boolean>(true);
+  const [showCameras, setShowCameras] = useState<boolean>(false);
 
   // Interactive Material & Whole-Home Theme State
   const [customizerOpen, setCustomizerOpen] = useState<boolean>(false);
@@ -79,21 +82,11 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
   const GRID_SIZE = 20; // 20px per foot at scale 1.0
 
   const formatDistance = (feet: number) => {
-    if (unit === 'metric') {
-      const meters = feet * 0.3048;
-      return `${meters.toFixed(2)}m`;
-    }
-    const ft = Math.floor(feet);
-    const inches = Math.round((feet - ft) * 12);
-    return inches > 0 ? `${ft}'${inches}"` : `${ft}'0"`;
+    return Units.formatDistance(feet, unit);
   };
 
   const formatArea = (sqft: number) => {
-    if (unit === 'metric') {
-      const sqm = sqft * 0.092903;
-      return `${sqm.toFixed(1)} m²`;
-    }
-    return `${Math.round(sqft)} sq ft`;
+    return Units.formatArea(sqft, unit);
   };
 
   /**
@@ -270,8 +263,8 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
       });
     }
 
-    // 6. Draw 3D Viewpoint Cameras (Maket.ai Spec)
-    if (project.cameras && project.cameras.length > 0) {
+    // 6. Draw 3D Viewpoint Cameras (Maket.ai Spec - toggleable to preserve drafting clarity)
+    if (showCameras && project.cameras && project.cameras.length > 0) {
       project.cameras
         .filter(cam => (cam.level || 1) === floorNum)
         .forEach(cam => {
@@ -284,45 +277,37 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
   };
 
   /**
-   * Draws 3D Perspective Camera viewpoints with FOV projection cones (Maket.ai reverse-engineered style)
+   * Draws 3D Perspective Camera viewpoints with FOV projection cones (Maket.ai style)
    */
   const drawCamera = (ctx: CanvasRenderingContext2D, cam: RoomCamera, isPresentation: boolean) => {
     const cx = cam.position[0] * GRID_SIZE;
     const cy = cam.position[1] * GRID_SIZE;
     const fovRad = ((cam.fov || 50) * Math.PI) / 180;
-    const rayLen = 28;
+    const rayLen = 18;
 
     ctx.save();
 
-    // 1. FOV Vision Cone
+    // 1. Subtle FOV Vision Cone
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, rayLen, -fovRad / 2, fovRad / 2);
     ctx.closePath();
-    ctx.fillStyle = isPresentation ? 'rgba(220, 38, 38, 0.08)' : 'rgba(59, 130, 246, 0.08)';
+    ctx.fillStyle = 'rgba(220, 38, 38, 0.05)';
     ctx.fill();
-    ctx.strokeStyle = isPresentation ? 'rgba(220, 38, 38, 0.45)' : 'rgba(59, 130, 246, 0.45)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(220, 38, 38, 0.35)';
+    ctx.lineWidth = 0.8;
     ctx.setLineDash([2, 2]);
     ctx.stroke();
     ctx.setLineDash([]);
 
     // 2. Camera Lens Dot
     ctx.beginPath();
-    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
-    ctx.fillStyle = isPresentation ? '#dc2626' : '#2563eb';
+    ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#dc2626';
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1;
     ctx.stroke();
-
-    // 3. Camera Label
-    if (showLabels) {
-      ctx.font = '600 8px JetBrains Mono, monospace';
-      ctx.fillStyle = isPresentation ? '#0f172a' : '#334155';
-      ctx.textAlign = 'center';
-      ctx.fillText(cam.name.replace(' Camera', ''), cx, cy - 7);
-    }
 
     ctx.restore();
   };
@@ -1657,65 +1642,76 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
     ph: number,
     isPresentation: boolean
   ) => {
+    // If room is too narrow or tiny (e.g. linen closet, corridor strip), suppress or draw micro-label to prevent collision
+    if (pw < 40 || ph < 30) {
+      if (pw >= 28 && ph >= 20) {
+        ctx.save();
+        ctx.font = '600 7.5px JetBrains Mono, monospace';
+        ctx.fillStyle = isPresentation ? '#475569' : '#94a3b8';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(room.name.split(' ')[0].toUpperCase(), px + pw / 2, py + ph / 2);
+        ctx.restore();
+      }
+      return;
+    }
+
     const displayName = getRoomDisplayName(room.type, room.name, room.nameTamil, language);
     const dimText = `${formatDistance(room.width)} × ${formatDistance(room.height)}`;
 
     const badgeX = px + pw / 2;
-    const badgeY = py + Math.min(22, ph * 0.22);
+    // Position comfortably in center-upper zone
+    const badgeY = py + ph / 2;
 
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    ctx.font = 'bold 11px Inter, sans-serif';
+    ctx.font = '600 10px Inter, sans-serif';
     const titleWidth = ctx.measureText(displayName.toUpperCase()).width;
-    ctx.font = 'bold 9.5px JetBrains Mono, monospace';
+    ctx.font = '500 8.5px JetBrains Mono, monospace';
     const dimWidth = ctx.measureText(dimText).width;
 
-    const pillW = Math.max(titleWidth, dimWidth) + 24;
-    const pillH = showDimensions ? 32 : 20;
+    const pillW = Math.max(titleWidth, dimWidth) + 14;
+    const pillH = showDimensions ? 24 : 16;
 
     if (isPresentation) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.94)';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetY = 2;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
       ctx.beginPath();
-      ctx.roundRect(badgeX - pillW / 2, badgeY - pillH / 2, pillW, pillH, 8);
+      ctx.roundRect(badgeX - pillW / 2, badgeY - pillH / 2, pillW, pillH, 4);
       ctx.fill();
 
-      ctx.shadowColor = 'transparent';
       ctx.strokeStyle = '#e2e8f0';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 0.8;
       ctx.stroke();
 
       ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 10.5px Inter, sans-serif';
-      ctx.fillText(displayName.toUpperCase(), badgeX, showDimensions ? badgeY - 6 : badgeY);
+      ctx.font = '600 9.5px Inter, sans-serif';
+      ctx.fillText(displayName.toUpperCase(), badgeX, showDimensions ? badgeY - 5 : badgeY);
 
       if (showDimensions) {
-        ctx.fillStyle = '#475569';
-        ctx.font = 'bold 9px JetBrains Mono, monospace';
-        ctx.fillText(dimText, badgeX, badgeY + 8);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '500 8px JetBrains Mono, monospace';
+        ctx.fillText(dimText, badgeX, badgeY + 6);
       }
     } else {
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
       ctx.beginPath();
-      ctx.roundRect(badgeX - pillW / 2, badgeY - pillH / 2, pillW, pillH, 6);
+      ctx.roundRect(badgeX - pillW / 2, badgeY - pillH / 2, pillW, pillH, 4);
       ctx.fill();
 
       ctx.strokeStyle = '#334155';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 0.8;
       ctx.stroke();
 
       ctx.fillStyle = '#f8fafc';
-      ctx.font = 'bold 10.5px Inter, sans-serif';
-      ctx.fillText(displayName.toUpperCase(), badgeX, showDimensions ? badgeY - 6 : badgeY);
+      ctx.font = '600 9.5px Inter, sans-serif';
+      ctx.fillText(displayName.toUpperCase(), badgeX, showDimensions ? badgeY - 5 : badgeY);
 
       if (showDimensions) {
         ctx.fillStyle = '#38bdf8';
-        ctx.font = 'bold 9px JetBrains Mono, monospace';
-        ctx.fillText(dimText, badgeX, badgeY + 8);
+        ctx.font = '500 8px JetBrains Mono, monospace';
+        ctx.fillText(dimText, badgeX, badgeY + 6);
       }
     }
 
@@ -1892,148 +1888,8 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
       drawArchitecturalCar(ctx, item, pw, pd, isPresentation);
     } else if (item.category === 'outdoor' || nm.includes('gate') || nm.includes('compound')) {
       drawCompoundGate(ctx, item, pw, pd, isPresentation);
-    } else if (item.category === 'entry' || nm.includes('shoe')) {
-      drawShoeStandConsole(ctx, item, pw, pd, isPresentation);
-    } else if (item.category === 'laundry' || nm.includes('laundry') || nm.includes('washer') || nm.includes('dryer')) {
-      drawLaundryStation(ctx, item, pw, pd, isPresentation);
-    } else if (item.category === 'kitchen' || nm.includes('kitchen') || nm.includes('fridge') || nm.includes('island') || nm.includes('cooktop') || nm.includes('hob')) {
-      drawKitchenStation(ctx, item, pw, pd, isPresentation);
-    } else if (item.category === 'bath' || nm.includes('tub') || nm.includes('vanity-sink') || nm.includes('toilet') || nm.includes('wc')) {
-      drawBathroomFixtures(ctx, item, pw, pd, isPresentation);
-    } else if (item.category === 'bedroom') {
-      if (nm.includes('wardrobe') || nm.includes('closet') || nm.includes('vanity') || nm.includes('dressing')) {
-        drawWardrobeAndVanity(ctx, item, pw, pd, isPresentation);
-      } else if (isPresentation) {
-        // Luxury Bed with Headboard, Pillows & Folded Duvet
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(-pw / 2, -pd / 2, pw, pd);
-        ctx.strokeStyle = '#cbd5e1';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(-pw / 2, -pd / 2, pw, pd);
-
-        ctx.fillStyle = '#78350f';
-        ctx.fillRect(-pw / 2, -pd / 2, pw, pd * 0.15);
-
-        ctx.fillStyle = '#f8fafc';
-        const pillowW = pw * 0.36;
-        const pillowH = pd * 0.22;
-        ctx.fillRect(-pw / 2 + pw * 0.08, -pd / 2 + pd * 0.2, pillowW, pillowH);
-        ctx.fillRect(pw / 2 - pw * 0.08 - pillowW, -pd / 2 + pd * 0.2, pillowW, pillowH);
-        ctx.strokeStyle = '#cbd5e1';
-        ctx.strokeRect(-pw / 2 + pw * 0.08, -pd / 2 + pd * 0.2, pillowW, pillowH);
-        ctx.strokeRect(pw / 2 - pw * 0.08 - pillowW, -pd / 2 + pd * 0.2, pillowW, pillowH);
-
-        ctx.fillStyle = item.fabricColor || '#d97706';
-        ctx.fillRect(-pw / 2, pd / 2 - pd * 0.35, pw, pd * 0.35);
-
-        // Twin Nightstands with lamps
-        ctx.fillStyle = '#78350f';
-        ctx.fillRect(-pw / 2 - 8, -pd / 2, 7, 9);
-        ctx.fillRect(pw / 2 + 1, -pd / 2, 7, 9);
-        ctx.fillStyle = '#fef08a';
-        ctx.beginPath();
-        ctx.arc(-pw / 2 - 4.5, -pd / 2 + 4.5, 2.5, 0, Math.PI * 2);
-        ctx.arc(pw / 2 + 4.5, -pd / 2 + 4.5, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(-pw / 2, -pd / 2, pw, pd);
-      }
-
-    } else if (item.category === 'living') {
-      if (nm.includes('tv') || nm.includes('credenza') || nm.includes('console')) {
-        drawTVMediaCredenza(ctx, item, pw, pd, isPresentation);
-      } else if (isPresentation) {
-        const sofaColor = item.fabricColor || '#881337'; // Burgundy Royal Velvet default from Image 1!
-        ctx.fillStyle = sofaColor;
-        ctx.fillRect(-pw / 2, -pd / 2, pw, pd * 0.42);
-        ctx.fillRect(-pw / 2, -pd / 2, pw * 0.38, pd);
-
-        ctx.strokeStyle = '#4c0519';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(-pw / 2, -pd / 2, pw, pd * 0.42);
-        ctx.strokeRect(-pw / 2, -pd / 2, pw * 0.38, pd);
-
-        // Tufted Golden Cross marks (+) on cushions
-        ctx.strokeStyle = '#fbbf24';
-        ctx.lineWidth = 1;
-        const drawCross = (cx: number, cy: number) => {
-          ctx.beginPath();
-          ctx.moveTo(cx - 3, cy); ctx.lineTo(cx + 3, cy);
-          ctx.moveTo(cx, cy - 3); ctx.lineTo(cx + 3, cy);
-          ctx.stroke();
-        };
-        drawCross(-pw * 0.25, -pd * 0.28);
-        drawCross(0, -pd * 0.28);
-        drawCross(pw * 0.25, -pd * 0.28);
-        drawCross(-pw * 0.31, pd * 0.22);
-
-        // Circular Coffee Table
-        const tableR = Math.min(pw, pd) * 0.22;
-        const tableX = pw * 0.18;
-        const tableY = pd * 0.18;
-
-        ctx.fillStyle = '#d97706';
-        ctx.beginPath();
-        ctx.arc(tableX, tableY, tableR, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#78350f';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      } else {
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(-pw / 2, -pd / 2, pw, pd);
-      }
-
-    } else if (item.category === 'dining') {
-      // Sahara Noir Marble Dining Table Top (Image 1 pattern)
-      if (isPresentation) {
-        ctx.fillStyle = '#0f172a'; // Deep midnight black marble
-        ctx.beginPath();
-        ctx.roundRect(-pw * 0.42, -pd * 0.35, pw * 0.84, pd * 0.7, 4);
-        ctx.fill();
-
-        // Golden lightning veins on Sahara Noir table top
-        ctx.strokeStyle = '#f59e0b';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(-pw * 0.3, -pd * 0.15);
-        ctx.lineTo(pw * 0.2, pd * 0.1);
-        ctx.stroke();
-
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(-pw * 0.42, -pd * 0.35, pw * 0.84, pd * 0.7);
-
-        // 6 White dining chairs (matching Image 1)
-        ctx.fillStyle = '#ffffff';
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1;
-        const chairW = pw * 0.22;
-        const chairH = pd * 0.18;
-
-        [-pw * 0.25, pw * 0.05].forEach(cx => {
-          ctx.fillRect(cx, -pd / 2, chairW, chairH);
-          ctx.strokeRect(cx, -pd / 2, chairW, chairH);
-        });
-        [-pw * 0.25, pw * 0.05].forEach(cx => {
-          ctx.fillRect(cx, pd / 2 - chairH, chairW, chairH);
-          ctx.strokeRect(cx, pd / 2 - chairH, chairW, chairH);
-        });
-      } else {
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(-pw / 2, -pd / 2, pw, pd);
-      }
-
     } else {
-      ctx.fillStyle = item.color || '#475569';
-      ctx.fillRect(-pw / 2, -pd / 2, pw, pd);
-      ctx.strokeStyle = isPresentation ? '#94a3b8' : '#38bdf8';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(-pw / 2, -pd / 2, pw, pd);
+      FurnitureSymbolRenderer.renderSymbol(ctx, item, pw, pd, isPresentation);
     }
 
     ctx.restore();

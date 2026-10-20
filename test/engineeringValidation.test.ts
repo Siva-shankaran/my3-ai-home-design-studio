@@ -208,4 +208,196 @@ test('Maket 5-Stage Floor Plan Generator Pipeline', async () => {
   assert.ok(plan.doors.length > 0, 'Should generate entry & internal doors');
 });
 
+test('Units Module - Precision Conversions & 8\'12" Rounding Prevention', async () => {
+  const { Units } = await import('../src/engine/geometry/units.ts');
+
+  // Conversions
+  assert.equal(Math.round(Units.feetToMeters(10) * 1000) / 1000, 3.048);
+  assert.equal(Math.round(Units.metersToFeet(3.048) * 10) / 10, 10.0);
+  assert.equal(Math.round(Units.sqftToSqm(1000) * 10) / 10, 92.9);
+
+  // Critical fix: 8.99 feet must format as 9' 0", NEVER 8' 12"
+  const formatted899 = Units.formatFeetInches(8.99);
+  assert.equal(formatted899, '9\' 0"');
+
+  const formatted800 = Units.formatFeetInches(8.0);
+  assert.equal(formatted800, '8\' 0"');
+
+  const formatted14_6 = Units.formatFeetInches(14.5);
+  assert.equal(formatted14_6, '14\' 6"');
+
+  // Parsing
+  assert.equal(Units.parseFeetInches('14\' 6"'), 14.5);
+  assert.equal(Units.parseFeetInches('10\' 0"'), 10);
+});
+
+test('Polygon & Spatial Math - Shoelace Area & Point Containment', async () => {
+  const { Polygon } = await import('../src/engine/geometry/polygon.ts');
+
+  // Shoelace area of 20 x 15 rectangle
+  const rect = [
+    { x: 0, y: 0 },
+    { x: 20, y: 0 },
+    { x: 20, y: 15 },
+    { x: 0, y: 15 }
+  ];
+  const area = Polygon.calculateShoelaceArea(rect);
+  assert.equal(area, 300);
+
+  // Centroid
+  const centroid = Polygon.calculateCentroid(rect);
+  assert.equal(centroid.x, 10);
+  assert.equal(centroid.y, 7.5);
+
+  // Point in polygon
+  assert.equal(Polygon.isPointInPolygon({ x: 10, y: 5 }, rect), true);
+  assert.equal(Polygon.isPointInPolygon({ x: 25, y: 5 }, rect), false);
+});
+
+test('Spatial Intersections - Room Overlaps & Setback Violations', async () => {
+  const { Intersections } = await import('../src/engine/geometry/intersections.ts');
+
+  const roomA = { id: 'r1', name: 'Living', x: 0, y: 0, width: 20, height: 16 };
+  const roomBOverlapping = { id: 'r2', name: 'Kitchen', x: 15, y: 10, width: 10, height: 10 };
+  const roomCAdjacent = { id: 'r3', name: 'Dining', x: 20, y: 0, width: 12, height: 16 };
+
+  // Overlap test
+  assert.equal(Intersections.checkRoomsOverlap(roomA, roomBOverlapping), true);
+  const overlapArea = Intersections.calculateOverlapArea(roomA, roomBOverlapping);
+  assert.equal(overlapArea, 5 * 6); // (20-15) * (16-10) = 30
+
+  // Adjacent test (touching boundary at x=20 is NOT an overlap)
+  assert.equal(Intersections.checkRoomsOverlap(roomA, roomCAdjacent), false);
+
+  // Setback violation test
+  const plot = { width: 40, depth: 60 };
+  const setbacks = { front: 5, rear: 5, left: 4, right: 4 };
+
+  const validRoom = { id: 'vr', name: 'Bed', x: 5, y: 6, width: 14, height: 12 };
+  const setbackResultsValid = Intersections.validateSetbacks([validRoom], plot, setbacks);
+  assert.equal(setbackResultsValid.isValid, true);
+
+  const encroachingRoom = { id: 'er', name: 'Garage', x: 1, y: 2, width: 14, height: 12 };
+  const setbackResultsInvalid = Intersections.validateSetbacks([encroachingRoom], plot, setbacks);
+  assert.equal(setbackResultsInvalid.isValid, false);
+  assert.ok(setbackResultsInvalid.violations.length >= 2);
+});
+
+test('Area Calculations - Carpet, Built-up, Circulation & Outer Envelope', async () => {
+  const { AreaCalculations } = await import('../src/engine/geometry/areaCalculations.ts');
+
+  const sampleRooms = [
+    { id: '1', name: 'Living', type: 'living' as const, width: 20, height: 15, x: 0, y: 0, floor: 1, color: '#000' },
+    { id: '2', name: 'Kitchen', type: 'kitchen' as const, width: 12, height: 12, x: 20, y: 0, floor: 1, color: '#000' },
+    { id: '3', name: 'Bed 1', type: 'bedroom' as const, width: 14, height: 12, x: 0, y: 15, floor: 1, color: '#000' },
+    { id: '4', name: 'Bath 1', type: 'bath' as const, width: 8, height: 6, x: 14, y: 15, floor: 1, color: '#000' },
+    { id: '5', name: 'Corridor', type: 'hallway' as const, width: 6, height: 6, x: 14, y: 21, floor: 1, color: '#000' }
+  ];
+
+  const report = AreaCalculations.generateAreaReport(sampleRooms, 0.75, 0.35);
+  assert.ok(report.totalCarpetArea > 0);
+  assert.ok(report.totalBuiltUpArea > report.totalCarpetArea);
+  assert.ok(report.circulationPercentage >= 0);
+  assert.ok(report.floorBreakdown[1]);
+  assert.equal(report.roomBreakdown.length, 5);
+});
+
+test('Architectural Template Library - 12 Distinct Validated Layouts', async () => {
+  const { TemplateLibrary } = await import('../src/engine/templates/templateLibrary.ts');
+
+  const allTemplates = TemplateLibrary.getAllTemplates();
+  assert.ok(allTemplates.length >= 12, `Must provide at least 12 templates, found ${allTemplates.length}`);
+
+  // Patterns A, B, C, D must all be represented
+  const patternA = allTemplates.filter(t => t.pattern === 'compact_efficient');
+  const patternB = allTemplates.filter(t => t.pattern === 'contemporary_open');
+  const patternC = allTemplates.filter(t => t.pattern === 'courtyard_daylight');
+  const patternD = allTemplates.filter(t => t.pattern === 'premium_residence');
+
+  assert.ok(patternA.length >= 2, 'Pattern A (Compact & Efficient) must have templates');
+  assert.ok(patternB.length >= 3, 'Pattern B (Contemporary Open-Plan) must have templates');
+  assert.ok(patternC.length >= 2, 'Pattern C (Courtyard & Lightwell) must have templates');
+  assert.ok(patternD.length >= 2, 'Pattern D (Premium Residence) must have templates');
+
+  // Verify geometry integrity for each template
+  for (const t of allTemplates) {
+    assert.ok(t.id, 'Template must have id');
+    assert.ok(t.name, 'Template must have name');
+    assert.ok(t.rooms.length >= 3, `${t.id} must have at least 3 rooms`);
+    assert.ok(t.doors.length >= 2, `${t.id} must have doors`);
+    assert.ok(t.windows.length >= 2, `${t.id} must have windows`);
+    assert.ok(t.furniture.length >= 2, `${t.id} must have furniture fixtures`);
+  }
+});
+
+test('Floor Plan Validator & IRC / NBC Building Code Audits', async () => {
+  const { FloorPlanValidator } = await import('../src/engine/validation/floorPlanValidator.ts');
+
+  const validRooms = [
+    { id: 'b1', name: 'Master Bed', type: 'bedroom' as const, width: 14, height: 12, x: 0, y: 0, floor: 1, color: '#000' },
+    { id: 'b2', name: 'Bath', type: 'bath' as const, width: 8, height: 6, x: 14, y: 0, floor: 1, color: '#000' }
+  ];
+  const validWindows = [
+    { id: 'w1', wallId: 'w1', position: { x: 7, y: 0 }, width: 4, height: 4, sillHeight: 3, floor: 1 }
+  ];
+
+  const validation = FloorPlanValidator.validateLayout(validRooms, [], validWindows, 1);
+  assert.equal(validation.hasCriticalErrors, false);
+
+  // Sub-standard bedroom test: width < 7ft or area < 70 sqft
+  const tinyBedroom = [
+    { id: 'tb', name: 'Tiny Bed', type: 'bedroom' as const, width: 6, height: 10, x: 0, y: 0, floor: 1, color: '#000' }
+  ];
+  const failValidation = FloorPlanValidator.validateLayout(tinyBedroom, [], [], 1);
+  assert.equal(failValidation.hasCriticalErrors, true);
+  assert.ok(failValidation.issues.some(i => i.code === 'BEDROOM_TOO_NARROW'));
+  assert.ok(failValidation.issues.some(i => i.code === 'BEDROOM_TOO_SMALL'));
+});
+
+test('3-Candidate Generator - Synthesizes 3 Distinct Architectural Solutions', async () => {
+  const { CandidateGenerator } = await import('../src/engine/generator/candidateGenerator.ts');
+
+  const requirements = {
+    plotWidth: 45,
+    plotDepth: 60,
+    targetSqft: 2200,
+    floors: 2 as const,
+    bedrooms: 3,
+    bathrooms: 3,
+    style: 'Contemporary Open-Plan',
+    roadFacing: 'North' as const,
+    hasCourtyard: false,
+    hasPoojaRoom: true,
+    hasHomeOffice: true,
+    hasCarParking: true,
+    setbacks: { front: 5, rear: 5, left: 3.5, right: 3.5 }
+  };
+
+  const candidates = CandidateGenerator.generateThreeCandidates(requirements);
+  assert.equal(candidates.length, 3, 'Must produce exactly 3 distinct candidate designs');
+
+  // Verify Option 01, 02, 03 labels
+  assert.equal(candidates[0].optionIndex, 1);
+  assert.equal(candidates[1].optionIndex, 2);
+  assert.equal(candidates[2].optionIndex, 3);
+
+  // Verify distinct concepts
+  assert.ok(candidates[0].conceptTitle.includes('Space-Optimized') || candidates[0].conceptTitle.includes('Optimized'));
+  assert.ok(candidates[1].conceptTitle.includes('Contemporary') || candidates[1].conceptTitle.includes('Living'));
+  assert.ok(candidates[2].conceptTitle.includes('Spatial') || candidates[2].conceptTitle.includes('Courtyard') || candidates[2].conceptTitle.includes('Executive'));
+
+  // Verify that templates used are not identical
+  const templateIds = candidates.map(c => c.templateId);
+  const uniqueTemplates = new Set(templateIds);
+  assert.ok(uniqueTemplates.size >= 2, 'Candidates must not all be identical duplicates');
+
+  // Verify evaluations
+  for (const c of candidates) {
+    assert.ok(c.evaluation.overallScore >= 70, `${c.name} overall score should be >= 70`);
+    assert.ok(c.project.rooms.length >= 5, `${c.name} must have room geometry`);
+    assert.ok(c.project.walls.length > 0, `${c.name} must have derived wall geometry`);
+    assert.ok(c.tradeoffs.length >= 2, `${c.name} must present trade-offs`);
+  }
+});
+
 

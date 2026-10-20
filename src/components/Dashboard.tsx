@@ -15,6 +15,7 @@ interface DashboardProps {
   onDeleteProject: (id: string) => void;
   onOpenDigitizer: () => void;
   onOpenMaketGenerator?: () => void;
+  onOpenConceptGenerator?: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -23,7 +24,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onCreateProject,
   onDeleteProject,
   onOpenDigitizer,
-  onOpenMaketGenerator
+  onOpenMaketGenerator,
+  onOpenConceptGenerator
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'prompt' | 'scratch'>('prompt');
@@ -93,6 +95,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 font-mono">
+            {onOpenConceptGenerator && (
+              <button
+                onClick={onOpenConceptGenerator}
+                className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-sm hover:brightness-110"
+                title="Generate 3 Distinct Architectural Concepts"
+              >
+                <Compass className="w-4 h-4 text-white" />
+                <span>GENERATE 3 CONCEPTS</span>
+              </button>
+            )}
+
             {onOpenMaketGenerator && (
               <button
                 onClick={onOpenMaketGenerator}

@@ -18,6 +18,7 @@ import { TamilNaduStudioPanel } from './components/TamilNaduStudioPanel';
 import { InteriorReferenceModal } from './components/InteriorReferenceModal';
 import { GuidedTourModal } from './components/GuidedTourModal';
 import { MaketGeneratorModal } from './components/MaketGeneratorModal';
+import { DesignConceptModal } from './components/DesignConceptModal';
 import { FloorplanStatsDrawer } from './components/FloorplanStatsDrawer';
 import { materialCatalogService } from './services/materialCatalogService';
 import type { Language } from './services/i18n';
@@ -78,6 +79,7 @@ export const App: React.FC = () => {
 
   // Maket AI Floorplan Generator & Inspector Drawer states
   const [isMaketModalOpen, setIsMaketModalOpen] = useState<boolean>(false);
+  const [isConceptModalOpen, setIsConceptModalOpen] = useState<boolean>(false);
   const [isStatsDrawerOpen, setIsStatsDrawerOpen] = useState<boolean>(false);
 
   const viewContainerRef = useRef<HTMLDivElement>(null);
@@ -190,6 +192,7 @@ export const App: React.FC = () => {
         onOpenInteriorReferences={() => setIsInteriorRefOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
         onOpenMaketGenerator={() => setIsMaketModalOpen(true)}
+        onOpenConceptGenerator={() => setIsConceptModalOpen(true)}
         language={language}
         onToggleLanguage={() => setLanguage(l => l === 'en' ? 'ta' : 'en')}
         cadStyleMode={cadStyleMode}
@@ -215,6 +218,7 @@ export const App: React.FC = () => {
             onDeleteProject={handleDeleteProject}
             onOpenDigitizer={() => setIsDigitizerOpen(true)}
             onOpenMaketGenerator={() => setIsMaketModalOpen(true)}
+            onOpenConceptGenerator={() => setIsConceptModalOpen(true)}
           />
         )}
 
@@ -424,6 +428,17 @@ export const App: React.FC = () => {
         onClose={() => setIsMaketModalOpen(false)}
         onPlanGenerated={(newPlan) => {
           handleCreateProject(newPlan);
+        }}
+      />
+
+      {/* Deterministic 3-Concept Architectural Synthesis Engine */}
+      <DesignConceptModal
+        isOpen={isConceptModalOpen}
+        onClose={() => setIsConceptModalOpen(false)}
+        onSelectDesign={(project, targetView) => {
+          handleCreateProject(project);
+          navigateTo(targetView);
+          setIsConceptModalOpen(false);
         }}
       />
 

@@ -32,6 +32,7 @@ export const Studio3D: React.FC<Studio3DProps> = ({
     'Photorealistic interior, Scandinavian modern oak floors, large floor-to-ceiling glass, soft afternoon lighting, high architectural detail'
   );
   const [activeTab, setActiveTab] = useState<'viewport' | 'renders'>('viewport');
+  const [showInspectorPanel, setShowInspectorPanel] = useState<boolean>(true);
 
   // Multi-floor 3D view modes: 'active' (active floor only), 'stacked' (complete multi-story), 'exploded' (upper floor elevated)
   const [floorMode, setFloorMode] = useState<'active' | 'stacked' | 'exploded'>('stacked');
@@ -51,9 +52,9 @@ export const Studio3D: React.FC<Studio3DProps> = ({
     const container = mountRef.current;
     if (!container) return;
 
-    // 1. Setup Three.js Scene
+    // 1. Setup Three.js Scene with Soft Daylight Architectural Sky
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(lightingPreset === 'night' ? '#040711' : '#090d16');
+    scene.background = new THREE.Color(lightingPreset === 'night' ? '#040711' : '#e2e8f0');
     sceneRef.current = scene;
 
     // 2. Camera
@@ -96,9 +97,12 @@ export const Studio3D: React.FC<Studio3DProps> = ({
     fillLight.position.set(-30, 40, -30);
     scene.add(fillLight);
 
-    // 5. Ground Plane
+    // 5. Ground Plane (Lush Green Manicured Lawn matching Image 1)
     const groundGeo = new THREE.PlaneGeometry(350, 350);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+    const groundMat = new THREE.MeshStandardMaterial({ 
+      color: lightingPreset === 'night' ? 0x14532d : 0x4d7c0f, 
+      roughness: 0.85 
+    });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.1;
@@ -160,30 +164,33 @@ export const Studio3D: React.FC<Studio3DProps> = ({
     });
     toRemove.forEach(obj => scene.remove(obj));
 
-    // Room Floors & Walls Materials
+    // Room Floors & Walls Materials matching Image 1
     const wallMaterial = new THREE.MeshStandardMaterial({
-      color: 0xf1f5f9,
-      roughness: 0.5,
-      metalness: 0.05
+      color: 0xffffff, // Crisp White Plaster Walls (Image 1)
+      roughness: 0.45,
+      metalness: 0.02
     });
 
     const floorTextures: Record<string, number> = {
-      living: 0xca8a04, // Warm hardwood
-      kitchen: 0x94a3b8, // Polished slate
-      bathroom: 0x0284c7, // Ceramic azure tile
-      master_bath: 0x0ea5e9,
-      master_bedroom: 0x854d0e, // Rich walnut
-      bedroom: 0xa16207,
-      patio: 0x78716c, // Flagstone
-      balcony: 0x64748b, // Architectural concrete terrace
-      office: 0x334155,
-      stairwell: 0x475569,
-      laundry: 0x059669,
-      foyer: 0xd97706,
-      closet: 0x7c3aed,
-      thinnai: 0xb45309, // Polished Terracotta / Red Oxide (Traditional Verandah)
-      muttram: 0x78716c, // Natural Stone Courtyard with open sky
-      puja: 0xf59e0b     // Warm Teak & Sacred Brass Shrine
+      living: 0xf5eedc, // Natural Warm Birch Planks (Image 1)
+      kitchen: 0xf1f5f9, // Crisp White Tile (Image 1)
+      bathroom: 0xf0fdfa, // White/Mint Ceramic Tile (Image 1)
+      master_bath: 0xf8fafc,
+      master_bedroom: 0xf5eedc, // Birch wood
+      bedroom: 0xf5eedc,
+      patio: 0x78716c,
+      balcony: 0x64748b,
+      office: 0xf5eedc,
+      stairwell: 0xe2e8f0,
+      laundry: 0xf1f5f9, // White tile
+      foyer: 0xf5eedc,
+      closet: 0xf5eedc,
+      thinnai: 0xfed7aa, // Terracotta verandah
+      muttram: 0x22c55e, // Lush courtyard lawn
+      puja: 0xfef08a,
+      dressing: 0xf5eedc,
+      utility: 0xf1f5f9,
+      parking: 0x94a3b8
     };
 
     // Filter rooms according to floorMode
@@ -807,6 +814,16 @@ export const Studio3D: React.FC<Studio3DProps> = ({
             >
               Exploded 3D View
             </button>
+            <button
+              onClick={() => {
+                cameraAngleRef.current = { theta: Math.PI / 4, phi: Math.PI / 3.2, radius: 80 };
+                updateCameraPosition();
+              }}
+              className="px-2 py-1 rounded-md text-[11px] font-medium bg-slate-800 text-slate-300 hover:text-white transition"
+              title="Set Isometric 3D Camera Angle (Image 1 Style)"
+            >
+              Isometric
+            </button>
           </div>
 
           {/* Auto Tour Button */}
@@ -911,6 +928,82 @@ export const Studio3D: React.FC<Studio3DProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Right Floating Architectural Finishes & Dimensions Inspector (Image 1 Style) */}
+          {showInspectorPanel && (
+            <div className="absolute top-16 right-4 z-20 w-64 sm:w-72 bg-white/95 backdrop-blur-md border border-slate-200 rounded-xl shadow-xl p-4 text-xs font-sans text-slate-800 select-none animate-fadeIn">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                <span className="font-bold text-sm text-slate-900 font-display">
+                  {activeFloor === 1 ? 'First Floor' : 'Upper Floor'}
+                </span>
+                <button
+                  onClick={() => setShowInspectorPanel(false)}
+                  className="text-slate-400 hover:text-slate-700 text-xs cursor-pointer font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-3 font-mono text-[11px]">
+                {/* Dimensions */}
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">DIMENSIONS</div>
+                  <div className="flex justify-between py-1 border-b border-slate-100">
+                    <span className="text-slate-500">Floor area:</span>
+                    <span className="font-bold text-slate-900">{project.sqft.toLocaleString()} ft²</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-slate-100">
+                    <span className="text-slate-500">Exterior:</span>
+                    <span className="font-bold text-slate-900">45&apos;8&quot; × 32&apos;8&quot;</span>
+                  </div>
+                </div>
+
+                {/* Configuration */}
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">CONFIGURATION</div>
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                    <span className="text-slate-500">Wall thickness:</span>
+                    <span className="font-bold text-slate-900">4&quot;</span>
+                  </div>
+                </div>
+
+                {/* Design References */}
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">DESIGN REFERENCES</div>
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100">
+                    <span className="text-slate-500">Style:</span>
+                    <span className="font-bold text-slate-900 flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
+                      <span>{project.style || 'Coastal'}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Finishes */}
+                <div>
+                  <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1">FINISHES</div>
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">Flooring:</span>
+                      <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200 text-[10px] font-semibold">Birch</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">Walls:</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[10px]">White Plaster</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">Ceiling:</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[10px]">#FFFFFF</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-500">Doors & Windows:</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-800 text-[10px]">#FFFFFF</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         /* Renders Gallery Grid */
