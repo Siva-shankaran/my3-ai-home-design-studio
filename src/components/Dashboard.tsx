@@ -14,6 +14,7 @@ interface DashboardProps {
   onCreateProject: (project: Project) => void;
   onDeleteProject: (id: string) => void;
   onOpenDigitizer: () => void;
+  onOpenMaketGenerator?: () => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -21,7 +22,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onSelectProject,
   onCreateProject,
   onDeleteProject,
-  onOpenDigitizer
+  onOpenDigitizer,
+  onOpenMaketGenerator
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'prompt' | 'scratch'>('prompt');
@@ -91,6 +93,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
 
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 font-mono">
+            {onOpenMaketGenerator && (
+              <button
+                onClick={onOpenMaketGenerator}
+                className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-sm hover:brightness-110"
+              >
+                <Sparkles className="w-4 h-4 text-white" />
+                <span>MAKET AI GENERATOR</span>
+              </button>
+            )}
+
             <button
               onClick={onOpenDigitizer}
               className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] text-[var(--color-ink)] border border-[var(--color-rule)] rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer"

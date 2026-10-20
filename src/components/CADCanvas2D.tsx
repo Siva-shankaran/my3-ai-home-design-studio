@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import type { Room, FurnitureItem, Door, WindowItem, Project, Column } from '../types';
+import type { Room, FurnitureItem, Door, WindowItem, Project, Column, RoomCamera } from '../types';
 import { type Language, getRoomDisplayName, translations } from '../services/i18n';
 import { materialCatalogService, type MaterialSwatch, type WholeHomeTheme } from '../services/materialCatalogService';
 import { InteriorsCustomizerModal } from './InteriorsCustomizerModal';
@@ -8,7 +8,7 @@ import {
   ZoomIn, ZoomOut, Maximize2, Move, Square, 
   Trash2, RotateCw, Eye, Ruler, Palette, Columns2,
   Layers, Check, SlidersHorizontal, Download, Sparkles, Building,
-  Wand2, Info, X, Image as ImageIcon, ArrowRight, ShieldCheck
+  Wand2, Info, X, Image as ImageIcon, ArrowRight, ShieldCheck, Camera
 } from 'lucide-react';
 
 interface CADCanvas2DProps {
@@ -26,6 +26,7 @@ interface CADCanvas2DProps {
   onToggleLanguage?: (lang: Language) => void;
   onOpenExport?: () => void;
   onOpenInteriorReferences?: () => void;
+  onToggleStatsDrawer?: () => void;
 }
 
 export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
@@ -42,7 +43,8 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
   onToggleCadStyle,
   onToggleLanguage,
   onOpenExport,
-  onOpenInteriorReferences
+  onOpenInteriorReferences,
+  onToggleStatsDrawer
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -268,8 +270,61 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
       });
     }
 
-    // 6. Draw Floor Title Header Banner
+    // 6. Draw 3D Viewpoint Cameras (Maket.ai Spec)
+    if (project.cameras && project.cameras.length > 0) {
+      project.cameras
+        .filter(cam => (cam.level || 1) === floorNum)
+        .forEach(cam => {
+          drawCamera(ctx, cam, isPresentation);
+        });
+    }
+
+    // 7. Draw Floor Title Header Banner
     drawFloorTitleBanner(ctx, rooms, titleBanner, isPresentation);
+  };
+
+  /**
+   * Draws 3D Perspective Camera viewpoints with FOV projection cones (Maket.ai reverse-engineered style)
+   */
+  const drawCamera = (ctx: CanvasRenderingContext2D, cam: RoomCamera, isPresentation: boolean) => {
+    const cx = cam.position[0] * GRID_SIZE;
+    const cy = cam.position[1] * GRID_SIZE;
+    const fovRad = ((cam.fov || 50) * Math.PI) / 180;
+    const rayLen = 28;
+
+    ctx.save();
+
+    // 1. FOV Vision Cone
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, rayLen, -fovRad / 2, fovRad / 2);
+    ctx.closePath();
+    ctx.fillStyle = isPresentation ? 'rgba(220, 38, 38, 0.08)' : 'rgba(59, 130, 246, 0.08)';
+    ctx.fill();
+    ctx.strokeStyle = isPresentation ? 'rgba(220, 38, 38, 0.45)' : 'rgba(59, 130, 246, 0.45)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 2. Camera Lens Dot
+    ctx.beginPath();
+    ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+    ctx.fillStyle = isPresentation ? '#dc2626' : '#2563eb';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // 3. Camera Label
+    if (showLabels) {
+      ctx.font = '600 8px JetBrains Mono, monospace';
+      ctx.fillStyle = isPresentation ? '#0f172a' : '#334155';
+      ctx.textAlign = 'center';
+      ctx.fillText(cam.name.replace(' Camera', ''), cx, cy - 7);
+    }
+
+    ctx.restore();
   };
 
   /**
@@ -2361,6 +2416,17 @@ export const CADCanvas2D: React.FC<CADCanvas2DProps> = ({
             <ImageIcon className="w-3 h-3 text-[#dc2626]" />
             <span>{language === 'ta' ? '3D உள்துறை போர்டு' : '3D Interior Board'}</span>
           </button>
+
+          {onToggleStatsDrawer && (
+            <button
+              onClick={onToggleStatsDrawer}
+              className="px-2.5 py-1 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 border border-[#dc2626]/40 text-[#dc2626] font-semibold rounded text-[10px] flex items-center space-x-1.5 transition whitespace-nowrap cursor-pointer shrink-0 shadow-sm"
+              title="Inspect Plan Schedule, 3D Cameras & Fixtures (Maket Spec)"
+            >
+              <Camera className="w-3 h-3" />
+              <span>{language === 'ta' ? 'அட்டவணை & கேமரா' : 'Schedule & Cameras'}</span>
+            </button>
+          )}
         </div>
       </div>
 

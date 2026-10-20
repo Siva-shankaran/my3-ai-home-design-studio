@@ -254,6 +254,39 @@ export interface ProfessionalReviewRecord {
   missingInformationChecklist: string[];
 }
 
+export interface RoomCamera {
+  id: string;
+  name: string;
+  level: number;
+  position: [number, number]; // [x, y] coordinates in feet
+  fov: number;
+  active?: boolean;
+}
+
+export type MaketFootprintShape = 'square' | 'l_shape' | 'u_shape' | 't_shape' | 'h_shape' | 'plus_shape' | 'z_shape';
+
+export interface MaketRoomRequirement {
+  id: string;
+  category: string;
+  label: string;
+  count: number;
+  targetSqft?: number;
+  iconName?: string;
+  isOutdoor?: boolean;
+  required?: boolean;
+}
+
+export interface MaketGeneratorParams {
+  floorCount: 1 | 2 | 3;
+  targetSqft: number;
+  shape: MaketFootprintShape;
+  rooms: MaketRoomRequirement[];
+  frontDoorWall: 'front' | 'back' | 'left' | 'right';
+  frontDoorAlignment: 'start' | 'center' | 'end';
+  style: 'Coastal' | 'Modern' | 'Minimalist' | 'Scandinavian' | 'Contemporary';
+  projectName?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -269,6 +302,7 @@ export interface Project {
   windows: WindowItem[];
   furniture: FurnitureItem[];
   columns?: Column[];
+  cameras?: RoomCamera[];
   renders: RenderImage[];
   style: string;
   structuralMetrics?: StructuralMetrics;

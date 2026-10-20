@@ -171,3 +171,41 @@ test('Architectural Vector SVG Export Generation', async () => {
   assert.ok(svg.includes('<g id="labels">'), 'SVG must contain labels layer');
 });
 
+test('Maket Sample Project (1,300 sqft) - Structural zones, fixtures & cameras verification', () => {
+  const maketProj = designService.getMaketSampleProject();
+  assert.equal(maketProj.sqft, 1300);
+  assert.equal(maketProj.floors, 1);
+  assert.equal(maketProj.rooms.length, 16, 'Maket sample must have exactly 16 programmatic zones');
+  assert.equal(maketProj.furniture.length, 27, 'Maket sample must have exactly 27 fixtures');
+  assert.ok(maketProj.cameras && maketProj.cameras.length === 11, 'Maket sample must have 11 room cameras');
+  assert.ok(maketProj.walls.length >= 50, 'Maket sample must have derived wall segments');
+  assert.ok(maketProj.doors.length >= 8, 'Maket sample must include interior and entry doors');
+  assert.ok(maketProj.windows.length >= 5, 'Maket sample must include perimeter windows');
+});
+
+test('Maket 5-Stage Floor Plan Generator Pipeline', async () => {
+  const plan = await designService.generateMaketFlowPlan({
+    floorCount: 1,
+    targetSqft: 1800,
+    shape: 'l_shape',
+    rooms: [
+      { id: '1', category: 'living_room', label: 'Living Room', count: 1 },
+      { id: '2', category: 'master_bedroom', label: 'Master Bedroom', count: 1 },
+      { id: '3', category: 'bedroom', label: 'Guest Bedroom', count: 2 },
+      { id: '4', category: 'kitchen', label: 'Kitchen', count: 1 },
+      { id: '5', category: 'full_bathroom', label: 'Bath', count: 2 }
+    ],
+    frontDoorWall: 'front',
+    frontDoorAlignment: 'center',
+    style: 'Modern'
+  });
+
+  assert.equal(plan.floors, 1);
+  assert.equal(plan.sqft, 1800);
+  assert.equal(plan.rooms.length, 7, 'Should expand 1 living + 1 master + 2 guest beds + 1 kitchen + 2 baths = 7 rooms');
+  assert.equal(plan.cameras?.length, 7, 'Should generate center cameras for all 7 rooms');
+  assert.ok(plan.walls.length > 0, 'Should generate walls');
+  assert.ok(plan.doors.length > 0, 'Should generate entry & internal doors');
+});
+
+

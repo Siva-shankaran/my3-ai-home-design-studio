@@ -17,6 +17,8 @@ import { ClientPitchModal } from './components/ClientPitchModal';
 import { TamilNaduStudioPanel } from './components/TamilNaduStudioPanel';
 import { InteriorReferenceModal } from './components/InteriorReferenceModal';
 import { GuidedTourModal } from './components/GuidedTourModal';
+import { MaketGeneratorModal } from './components/MaketGeneratorModal';
+import { FloorplanStatsDrawer } from './components/FloorplanStatsDrawer';
 import { materialCatalogService } from './services/materialCatalogService';
 import type { Language } from './services/i18n';
 import { 
@@ -54,6 +56,9 @@ initialSampleProject.renders = [
   }
 ];
 
+// Reverse-engineered Maket.ai 1,300 sqft residential layout asset
+const maketSampleProject: Project = designService.getMaketSampleProject();
+
 // Helper to determine initial view strictly from URL hash; defaults ALWAYS to 'landing'
 const getInitialView = (): 'landing' | 'dashboard' | 'editor2d' | 'studio3d' => {
   if (typeof window !== 'undefined') {
@@ -68,8 +73,12 @@ const getInitialView = (): 'landing' | 'dashboard' | 'editor2d' | 'studio3d' => 
 export const App: React.FC = () => {
   // Navigation & Mode State — Defaults to Landing Page first, preserved step-by-step
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'editor2d' | 'studio3d'>(getInitialView);
-  const [projects, setProjects] = useState<Project[]>([initialSampleProject]);
-  const [activeProject, setActiveProject] = useState<Project>(initialSampleProject);
+  const [projects, setProjects] = useState<Project[]>([maketSampleProject, initialSampleProject]);
+  const [activeProject, setActiveProject] = useState<Project>(maketSampleProject);
+
+  // Maket AI Floorplan Generator & Inspector Drawer states
+  const [isMaketModalOpen, setIsMaketModalOpen] = useState<boolean>(false);
+  const [isStatsDrawerOpen, setIsStatsDrawerOpen] = useState<boolean>(false);
 
   const viewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -180,6 +189,7 @@ export const App: React.FC = () => {
         onOpenPitch={() => setIsPitchOpen(true)}
         onOpenInteriorReferences={() => setIsInteriorRefOpen(true)}
         onOpenTour={() => setIsTourOpen(true)}
+        onOpenMaketGenerator={() => setIsMaketModalOpen(true)}
         language={language}
         onToggleLanguage={() => setLanguage(l => l === 'en' ? 'ta' : 'en')}
         cadStyleMode={cadStyleMode}
@@ -204,6 +214,7 @@ export const App: React.FC = () => {
             onCreateProject={handleCreateProject}
             onDeleteProject={handleDeleteProject}
             onOpenDigitizer={() => setIsDigitizerOpen(true)}
+            onOpenMaketGenerator={() => setIsMaketModalOpen(true)}
           />
         )}
 
@@ -264,6 +275,14 @@ export const App: React.FC = () => {
               >
                 <Sparkles className="w-4 h-4" />
               </button>
+
+              <button
+                onClick={() => setIsStatsDrawerOpen(prev => !prev)}
+                className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${isStatsDrawerOpen ? 'bg-[#dc2626] text-white shadow-sm' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
+                title="Plan Schedule, 3D Cameras & Fixtures Inspector (Maket Spec)"
+              >
+                <Layers className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Central Studio Viewport */}
@@ -284,6 +303,7 @@ export const App: React.FC = () => {
                   onToggleLanguage={setLanguage}
                   onOpenExport={() => setIsExportOpen(true)}
                   onOpenInteriorReferences={() => setIsInteriorRefOpen(true)}
+                  onToggleStatsDrawer={() => setIsStatsDrawerOpen(prev => !prev)}
                 />
               )}
 
@@ -397,6 +417,28 @@ export const App: React.FC = () => {
           onJumpToView={navigateTo}
         />
       )}
+
+      {/* Maket.ai 5-Step Requirements Ingestion Floorplan Generator */}
+      <MaketGeneratorModal
+        isOpen={isMaketModalOpen}
+        onClose={() => setIsMaketModalOpen(false)}
+        onPlanGenerated={(newPlan) => {
+          handleCreateProject(newPlan);
+        }}
+      />
+
+      {/* Maket.ai Plan Inspector & 3D Camera Teleports Schedule Drawer */}
+      <FloorplanStatsDrawer
+        isOpen={isStatsDrawerOpen}
+        onClose={() => setIsStatsDrawerOpen(false)}
+        project={activeProject}
+        onSelectCamera={(cam) => {
+          console.log('Teleporting 2D/3D viewport to viewpoint:', cam.name, cam.position);
+        }}
+        onFocusRoom={(roomId) => {
+          console.log('Focusing room:', roomId);
+        }}
+      />
     </div>
   );
 };

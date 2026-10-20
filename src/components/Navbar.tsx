@@ -32,6 +32,8 @@ interface NavbarProps {
   onOpenInteriorReferences?: () => void;
   // Guided Architectural Tour
   onOpenTour?: () => void;
+  // Maket AI Floorplan Generator Wizard
+  onOpenMaketGenerator?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -52,7 +54,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   cadStyleMode = 'presentation',
   onToggleCadStyle,
   isMultiFloorSideBySide = false,
-  onToggleSideBySide
+  onToggleSideBySide,
+  onOpenMaketGenerator
 }) => {
   const [showLanguagePopover, setShowLanguagePopover] = useState<boolean>(false);
   const t = translations[language];
@@ -212,6 +215,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Right Actions, Language Switcher & Profile */}
       <div className="flex items-center space-x-2 relative font-mono text-xs">
+        {onOpenMaketGenerator && (
+          <button
+            onClick={onOpenMaketGenerator}
+            className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 border border-[#dc2626]/40 text-[#dc2626] font-semibold rounded text-[11px] transition cursor-pointer shadow-xs"
+            title="Open Maket.ai 5-Step Floorplan Generator Wizard"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Maket Generator</span>
+          </button>
+        )}
+
         {/* Metric / Imperial toggle */}
         <button
           onClick={onToggleUnit}
