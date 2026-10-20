@@ -36,6 +36,8 @@ interface NavbarProps {
   onOpenMaketGenerator?: () => void;
   // Deterministic 3-Concept Architectural Synthesis
   onOpenConceptGenerator?: () => void;
+  // Full-Screen Editorial Menu
+  onOpenMenu?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -58,13 +60,34 @@ export const Navbar: React.FC<NavbarProps> = ({
   isMultiFloorSideBySide = false,
   onToggleSideBySide,
   onOpenMaketGenerator,
-  onOpenConceptGenerator
+  onOpenConceptGenerator,
+  onOpenMenu
 }) => {
   const [showLanguagePopover, setShowLanguagePopover] = useState<boolean>(false);
+  const [isNavVisible, setIsNavVisible] = useState<boolean>(true);
+  const lastScrollY = React.useRef<number>(0);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current + 8 && currentScrollY > 60) {
+        setIsNavVisible(false);
+      } else if (currentScrollY < lastScrollY.current - 8) {
+        setIsNavVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const t = translations[language];
 
   return (
-    <header className="h-13 border-b border-[var(--color-rule)] bg-[var(--color-paper-2)] px-2.5 sm:px-4 flex items-center justify-between z-30 select-none font-sans text-[var(--color-ink)]">
+    <header className={`h-13 border-b border-[var(--color-rule)] bg-[var(--color-paper-2)]/95 backdrop-blur-xs px-3 sm:px-6 flex items-center justify-between z-30 select-none font-sans text-[var(--color-ink)] transition-transform duration-300 ${
+      !isNavVisible && currentView === 'landing' ? '-translate-y-full' : 'translate-y-0'
+    }`}>
       {/* Brand Logo & Studio Identifier */}
       <div className="flex items-center space-x-2 sm:space-x-6">
         <div 
@@ -72,13 +95,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center space-x-2.5 cursor-pointer group"
           title="Return to Landing Page"
         >
-          <div className="w-8 h-8 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center font-bold shadow-sm group-hover:bg-[var(--color-accent-hover)] transition shrink-0">
-            <Compass className="w-4 h-4 text-white" />
+          <div className="w-7 h-7 rounded bg-[var(--color-accent)] text-white flex items-center justify-center font-bold shadow-xs group-hover:bg-[var(--color-accent-hover)] transition shrink-0">
+            <Compass className="w-3.5 h-3.5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-serif font-bold text-base text-[var(--color-ink)] tracking-tight">MY3 <span className="italic font-normal">Desings</span></span>
-              <span className="hidden sm:inline-block text-[10px] bg-[var(--color-accent-subtle)] text-[var(--color-accent)] px-2 py-0.5 rounded-full border border-[var(--color-accent)]/20 font-mono font-bold">STUDIO</span>
+              <span className="font-display font-medium text-base text-[var(--color-ink)] tracking-tight">MY3 <span className="italic font-normal">Designs</span></span>
+              <span className="hidden sm:inline-block text-[9px] bg-[var(--color-accent-subtle)] text-[var(--color-accent)] px-1.5 py-0.2 rounded border border-[var(--color-accent)]/20 font-mono font-bold tracking-wider">STUDIO</span>
             </div>
             <span className="text-[10px] text-[var(--color-muted)] hidden sm:block -mt-0.5 font-mono">
               {language === 'ta' ? 'AI கட்டிட வடிவமைப்பு தளம்' : 'AI Architectural Studio'}
@@ -218,154 +241,130 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Right Actions, Language Switcher & Profile */}
       <div className="flex items-center space-x-2 relative font-mono text-xs">
-        {onOpenConceptGenerator && (
-          <button
-            onClick={onOpenConceptGenerator}
-            className="flex items-center space-x-1.5 px-2.5 py-1 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-600/40 text-emerald-700 font-semibold rounded text-[11px] transition cursor-pointer shadow-xs"
-            title="Generate 3 Distinct Architectural Concepts"
-          >
-            <Compass className="w-3.5 h-3.5 text-emerald-600" />
-            <span>3 Concepts</span>
-          </button>
-        )}
+        {currentView === 'landing' ? (
+          <>
+            {/* Language Switcher */}
+            <button
+              onClick={onToggleLanguage}
+              className="px-2.5 py-1 rounded-[var(--radius-card)] text-[11px] font-mono flex items-center space-x-1 border border-[var(--color-rule)] bg-[var(--color-paper-3)] text-[var(--color-ink)] hover:border-[var(--color-muted)] transition cursor-pointer"
+              title="Switch Language: English / தமிழ்"
+            >
+              <Globe className="w-3 h-3 text-[var(--color-accent)]" />
+              <span>{language === 'en' ? 'EN' : 'தமிழ்'}</span>
+            </button>
 
-        {onOpenMaketGenerator && (
-          <button
-            onClick={onOpenMaketGenerator}
-            className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 bg-[#dc2626]/10 hover:bg-[#dc2626]/20 border border-[#dc2626]/40 text-[#dc2626] font-semibold rounded text-[11px] transition cursor-pointer shadow-xs"
-            title="Open Maket.ai 5-Step Floorplan Generator Wizard"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Maket Generator</span>
-          </button>
-        )}
+            {/* Menu Button */}
+            {onOpenMenu && (
+              <button
+                onClick={onOpenMenu}
+                className="px-3 py-1.5 rounded-[var(--radius-card)] text-xs font-mono font-medium tracking-wider uppercase border border-[var(--color-rule)] bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] text-[var(--color-ink)] transition flex items-center gap-1.5 cursor-pointer"
+                aria-label="Open Navigation Menu"
+              >
+                <span className="w-3 h-[1px] bg-[var(--color-ink)] block" />
+                <span>Menu</span>
+              </button>
+            )}
 
-        {/* Metric / Imperial toggle */}
-        <button
-          onClick={onToggleUnit}
-          className="px-2 sm:px-2.5 py-1 bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] border border-[var(--color-rule)] rounded text-[11px] sm:text-xs text-[var(--color-ink-2)] transition cursor-pointer"
-          title="Toggle Measurement Units"
-        >
-          {unit === 'imperial' ? t.feet : t.meters}
-        </button>
+            {/* Start Designing Primary Terracotta CTA */}
+            <button
+              onClick={() => onNavigate('dashboard')}
+              className="px-4 py-1.5 rounded-[var(--radius-card)] bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-xs font-mono font-medium tracking-wider uppercase transition shadow-xs cursor-pointer"
+            >
+              Start Designing
+            </button>
+          </>
+        ) : (
+          <>
+            {onOpenConceptGenerator && (
+              <button
+                onClick={onOpenConceptGenerator}
+                className="flex items-center space-x-1.5 px-2.5 py-1 bg-[var(--color-accent-subtle)] hover:bg-[var(--color-paper-3)] border border-[var(--color-accent)]/40 text-[var(--color-accent)] font-semibold rounded-[var(--radius-card)] text-[11px] transition cursor-pointer shadow-xs"
+                title="Generate 3 Distinct Architectural Concepts"
+              >
+                <Compass className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                <span>3 Concepts</span>
+              </button>
+            )}
 
-        {/* Language Switcher Button */}
-        <div className="relative">
-          <button
-            onClick={onToggleLanguage}
-            className={`px-2 sm:px-2.5 py-1 rounded text-[11px] sm:text-xs font-mono flex items-center space-x-1 sm:space-x-1.5 border transition cursor-pointer ${
-              language === 'ta'
-                ? 'bg-[#dc2626] border-[#dc2626] text-white font-bold'
-                : 'bg-[var(--color-paper-3)] border-[var(--color-rule)] text-[var(--color-ink)] hover:border-[var(--color-rule-2)]'
-            }`}
-            title="Switch Language: English / தமிழ்"
-          >
-            <Globe className="w-3.5 h-3.5 text-[#dc2626]" />
-            <span>{language === 'en' ? 'EN' : 'தமிழ்'}</span>
-          </button>
+            {onOpenMaketGenerator && (
+              <button
+                onClick={onOpenMaketGenerator}
+                className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] border border-[var(--color-rule)] text-[var(--color-ink)] font-semibold rounded-[var(--radius-card)] text-[11px] transition cursor-pointer shadow-xs"
+                title="Open Maket.ai 5-Step Floorplan Generator Wizard"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                <span>Maket Spec</span>
+              </button>
+            )}
 
-          {/* Navigation Popover Guide */}
-          {showLanguagePopover && (
-            <div className="absolute right-0 top-11 z-50 w-72 max-w-[calc(100vw-1rem)] p-3 bg-[var(--color-paper)] border border-[var(--color-rule)] rounded shadow-xl font-mono">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-1.5 text-[var(--color-ink)] font-bold text-xs">
-                  <Globe className="w-3.5 h-3.5 text-[#dc2626]" />
-                  <span>{t.languagePopTitle}</span>
-                </div>
-                <button 
-                  onClick={() => setShowLanguagePopover(false)} 
-                  className="text-[var(--color-muted)] hover:text-[var(--color-ink)] text-xs px-1 cursor-pointer"
-                >
-                  ✕
-                </button>
-              </div>
+            {/* Metric / Imperial toggle */}
+            <button
+              onClick={onToggleUnit}
+              className="px-2 sm:px-2.5 py-1 bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] border border-[var(--color-rule)] rounded-[var(--radius-card)] text-[11px] sm:text-xs text-[var(--color-ink-2)] transition cursor-pointer"
+              title="Toggle Measurement Units"
+            >
+              {unit === 'imperial' ? t.feet : t.meters}
+            </button>
 
-              <p className="text-[11px] text-[var(--color-ink-2)] mt-1.5 leading-relaxed font-sans">
-                {t.languagePopDesc}
-              </p>
-
-              <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-[var(--color-rule)]">
-                <button
-                  onClick={() => {
-                    onToggleLanguage();
-                    setShowLanguagePopover(false);
-                  }}
-                  className="px-2 py-1 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded text-[10px] font-bold transition flex items-center gap-1"
-                >
-                  <span>{language === 'en' ? 'Switch to தமிழ்' : 'Switch to English'}</span>
-                </button>
-                <button
-                  onClick={() => setShowLanguagePopover(false)}
-                  className="px-2 py-1 bg-[var(--color-paper-3)] hover:bg-[var(--color-paper-2)] text-[var(--color-muted)] rounded text-[10px]"
-                >
-                  {t.languagePopAction}
-                </button>
-              </div>
+            {/* Language Switcher Button */}
+            <div className="relative">
+              <button
+                onClick={onToggleLanguage}
+                className={`px-2 sm:px-2.5 py-1 rounded-[var(--radius-card)] text-[11px] sm:text-xs font-mono flex items-center space-x-1 sm:space-x-1.5 border transition cursor-pointer ${
+                  language === 'ta'
+                    ? 'bg-[var(--color-accent)] border-[var(--color-accent)] text-white font-bold'
+                    : 'bg-[var(--color-paper-3)] border-[var(--color-rule)] text-[var(--color-ink)] hover:border-[var(--color-rule-2)]'
+                }`}
+                title="Switch Language: English / தமிழ்"
+              >
+                <Globe className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                <span>{language === 'en' ? 'EN' : 'தமிழ்'}</span>
+              </button>
             </div>
-          )}
-        </div>
 
-        {/* AI Credits Meter */}
-        <div className="flex items-center space-x-1.5 bg-[var(--color-paper-3)] border border-[var(--color-rule)] px-2.5 py-1 rounded text-[var(--color-ink)]">
-          <Sparkles className="w-3.5 h-3.5 text-[#dc2626]" />
-          <span className="font-bold text-[var(--color-ink)]">{user.credits}</span>
-          <span className="text-[var(--color-muted)] text-[10px] hidden sm:inline">{t.credits}</span>
-        </div>
+            {/* Step-by-Step Guided Tour Button */}
+            {onOpenTour && (
+              <button
+                onClick={onOpenTour}
+                className="bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] text-[var(--color-ink)] border border-[var(--color-rule)] px-2.5 sm:px-3 py-1 rounded-[var(--radius-card)] text-xs font-mono flex items-center space-x-1.5 transition cursor-pointer"
+                title="Step-by-Step Architectural Platform Guide"
+              >
+                <HelpCircle className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                <span className="hidden sm:inline">{language === 'ta' ? 'வழிகாட்டி' : 'Guide'}</span>
+              </button>
+            )}
 
-        {/* Step-by-Step Guided Tour Button */}
-        {onOpenTour && (
-          <button
-            onClick={onOpenTour}
-            className="bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] text-[var(--color-ink)] border border-[var(--color-rule)] px-2.5 sm:px-3 py-1 rounded text-xs font-mono flex items-center space-x-1.5 transition cursor-pointer"
-            title="Step-by-Step Architectural Platform Guide"
-          >
-            <HelpCircle className="w-3.5 h-3.5 text-[#dc2626]" />
-            <span className="hidden sm:inline">{language === 'ta' ? 'வழிகாட்டி' : 'Guide'}</span>
-          </button>
+            {/* Menu Button */}
+            {onOpenMenu && (
+              <button
+                onClick={onOpenMenu}
+                className="px-2.5 py-1 rounded-[var(--radius-card)] text-xs font-mono border border-[var(--color-rule)] bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] text-[var(--color-ink)] transition cursor-pointer"
+                title="Open Menu"
+              >
+                Menu
+              </button>
+            )}
+
+            {/* Export Button (Terracotta Primary CTA) */}
+            {activeProject && (
+              <button
+                onClick={onOpenExport}
+                className="bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white px-3.5 py-1 rounded-[var(--radius-card)] text-xs font-mono font-semibold flex items-center space-x-1.5 transition shadow-xs cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-white" />
+                <span>EXPORT</span>
+              </button>
+            )}
+
+            {/* User Profile Tag */}
+            <div className="flex items-center space-x-1.5 bg-[var(--color-paper-3)] border border-[var(--color-rule)] px-2 py-1 rounded-[var(--radius-card)]">
+              <div className="w-5 h-5 rounded-[var(--radius-pill)] bg-[var(--color-dark)] text-white flex items-center justify-center font-bold text-[10px]">
+                {user.name.charAt(0)}
+              </div>
+              <span className="hidden sm:inline text-xs text-[var(--color-ink)] font-mono">{user.name}</span>
+            </div>
+          </>
         )}
-
-        {/* 3D Interior References Board Button */}
-        {activeProject && currentView !== 'landing' && onOpenInteriorReferences && (
-          <button
-            onClick={onOpenInteriorReferences}
-            className="bg-slate-100 hover:bg-slate-200 text-[var(--color-ink)] border border-[var(--color-rule)] px-3 py-1 rounded text-xs font-mono flex items-center space-x-1.5 transition"
-            title="Open 3D Interior Reference Visuals & Material Moodboard"
-          >
-            <Palette className="w-3.5 h-3.5 text-[#dc2626]" />
-            <span className="hidden sm:inline">{language === 'ta' ? '3D உள்துறை' : '3D Interiors'}</span>
-          </button>
-        )}
-
-        {/* Client Pitch Presentation Button */}
-        {activeProject && currentView !== 'landing' && onOpenPitch && (
-          <button
-            onClick={onOpenPitch}
-            className="bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] text-[var(--color-ink)] border border-[var(--color-rule)] px-3 py-1 rounded text-xs font-mono flex items-center space-x-1.5 transition"
-            title="Open Executive Client Presentation & Material Board"
-          >
-            <Award className="w-3.5 h-3.5 text-[#dc2626]" />
-            <span className="hidden sm:inline">{t.clientPitch}</span>
-          </button>
-        )}
-
-        {/* Export Button (Signal Red Primary CTA) */}
-        {activeProject && currentView !== 'landing' && (
-          <button
-            onClick={onOpenExport}
-            className="bg-[#dc2626] hover:bg-[#b91c1c] text-white px-3.5 py-1 rounded text-xs font-mono font-semibold flex items-center space-x-1.5 transition shadow-xs"
-          >
-            <Download className="w-3.5 h-3.5 text-white" />
-            <span>EXPORT</span>
-          </button>
-        )}
-
-        {/* User Profile Tag */}
-        <div className="flex items-center space-x-1.5 bg-[var(--color-paper-3)] border border-[var(--color-rule)] px-2 py-1 rounded">
-          <div className="w-5 h-5 rounded bg-[#0f172a] text-white flex items-center justify-center font-bold text-[10px]">
-            {user.name.charAt(0)}
-          </div>
-          <span className="hidden sm:inline text-xs text-[var(--color-ink)] font-mono">{user.name}</span>
-        </div>
       </div>
     </header>
   );

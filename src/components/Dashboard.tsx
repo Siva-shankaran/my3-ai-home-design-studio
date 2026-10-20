@@ -82,10 +82,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {/* Architectural Workbench Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--color-rule)] pb-5">
           <div>
-            <div className="text-[11px] font-mono text-[#dc2626] font-bold tracking-wider">PROJECT REPOSITORY // ARCHITECTURAL INDEX</div>
+            <div className="text-[11px] font-mono text-[var(--color-accent)] font-bold tracking-wider">PROJECT ARCHIVE // WORKBENCH</div>
             <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-ink)] tracking-tight mt-0.5 flex items-center gap-2.5 font-display">
               <span>Architectural Workspace</span>
-              <span className="text-xs bg-[#dc2626]/10 text-[#dc2626] font-mono px-2 py-0.5 rounded border border-[#dc2626]/30 font-semibold">
+              <span className="text-xs bg-[var(--color-accent-subtle)] text-[var(--color-accent)] font-mono px-2 py-0.5 rounded border border-[var(--color-accent)]/30 font-semibold">
                 {projects.length} Blueprints
               </span>
             </h1>
@@ -98,21 +98,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {onOpenConceptGenerator && (
               <button
                 onClick={onOpenConceptGenerator}
-                className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-sm hover:brightness-110"
+                className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-xs"
                 title="Generate 3 Distinct Architectural Concepts"
               >
                 <Compass className="w-4 h-4 text-white" />
-                <span>GENERATE 3 CONCEPTS</span>
+                <span>3 CONCEPTS</span>
               </button>
             )}
 
             {onOpenMaketGenerator && (
               <button
                 onClick={onOpenMaketGenerator}
-                className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-gradient-to-r from-[#dc2626] to-[#b91c1c] text-white rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-sm hover:brightness-110"
+                className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] text-[var(--color-ink)] border border-[var(--color-rule)] rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-white" />
-                <span>MAKET AI GENERATOR</span>
+                <Sparkles className="w-4 h-4 text-[var(--color-accent)]" />
+                <span>MAKET SPEC</span>
               </button>
             )}
 
@@ -120,13 +120,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
               onClick={onOpenDigitizer}
               className="flex-1 sm:flex-none justify-center px-3.5 py-2 bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] text-[var(--color-ink)] border border-[var(--color-rule)] rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
             >
-              <UploadCloud className="w-4 h-4 text-[#dc2626]" />
+              <UploadCloud className="w-4 h-4 text-[var(--color-accent)]" />
               <span>DIGITIZE PLAN</span>
             </button>
 
             <button
               onClick={() => { setIsModalOpen(true); setModalMode('prompt'); }}
-              className="flex-1 sm:flex-none justify-center px-4 py-2 bg-[#dc2626] hover:bg-[#b91c1c] text-white rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-sm"
+              className="flex-1 sm:flex-none justify-center px-4 py-2 bg-[var(--color-dark)] hover:bg-[var(--color-dark-2)] text-white rounded text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-xs"
             >
               <Plus className="w-4 h-4" />
               <span>NEW BLUEPRINT</span>
@@ -143,7 +143,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               placeholder="Search blueprints by title, style, or room program..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded pl-9 pr-3 py-1.5 text-xs text-[var(--color-ink)] font-mono placeholder-[var(--color-muted)] focus:outline-none focus:border-[#dc2626] transition"
+              className="w-full bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded pl-9 pr-3 py-1.5 text-xs text-[var(--color-ink)] font-mono placeholder-[var(--color-muted)] focus:outline-none focus:border-[var(--color-accent)] transition"
             />
           </div>
           <div className="text-[11px] font-mono text-[var(--color-muted)] hidden sm:block">
@@ -157,16 +157,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div
               key={project.id}
               onClick={() => onSelectProject(project)}
-              className="group relative bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] border border-[var(--color-rule)] hover:border-[#dc2626] rounded-md overflow-hidden transition cursor-pointer flex flex-col justify-between shadow-sm"
+              className="group relative bg-[var(--color-paper-2)] hover:bg-[var(--color-paper-3)] border border-[var(--color-rule)] hover:border-[var(--color-accent)] rounded-md overflow-hidden transition cursor-pointer flex flex-col justify-between shadow-xs"
             >
               {/* Preview Canvas Miniature */}
               <div className="h-44 bg-[var(--color-paper)] p-4 relative overflow-hidden flex items-center justify-center border-b border-[var(--color-rule)] cad-grid">
                 {/* Structural Miniature Layout */}
-                <div className="relative z-10 w-44 h-32 border border-[#dc2626]/60 rounded bg-[var(--color-paper-2)] p-1.5 flex flex-wrap gap-1 items-center justify-center">
+                <div className="relative z-10 w-44 h-32 border border-[var(--color-accent)]/60 rounded bg-[var(--color-paper-2)] p-1.5 flex flex-wrap gap-1 items-center justify-center">
                   {project.rooms.slice(0, 4).map((r, i) => (
                     <div 
                       key={i} 
-                      className="rounded text-[8px] font-mono text-center flex items-center justify-center p-1 border border-[#dc2626]/30 text-[#0f172a] bg-[#dc2626]/10 font-semibold"
+                      className="rounded text-[8px] font-mono text-center flex items-center justify-center p-1 border border-[var(--color-accent)]/30 text-[var(--color-ink)] bg-[var(--color-accent)]/10 font-semibold"
                       style={{ 
                         width: `${Math.min(r.width * 3.5, 75)}px`, 
                         height: `${Math.min(r.height * 3.5, 50)}px`
@@ -179,7 +179,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                 <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[10px] text-[var(--color-muted)] font-mono">
                   <span>{project.rooms.length} ROOMS · {project.floors || 2}F</span>
-                  <span className="font-semibold text-[#dc2626]">{project.sqft} SQ FT</span>
+                  <span className="font-semibold text-[var(--color-accent)]">{project.sqft} SQ FT</span>
                 </div>
               </div>
 
@@ -187,7 +187,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <div className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-bold text-[var(--color-ink)] text-sm group-hover:text-[#dc2626] transition font-display">{project.name}</h3>
+                    <h3 className="font-bold text-[var(--color-ink)] text-sm group-hover:text-[var(--color-accent)] transition font-display">{project.name}</h3>
                     <p className="text-xs text-[var(--color-ink-2)] line-clamp-1 mt-0.5 font-sans">{project.description}</p>
                   </div>
                   <button
@@ -195,7 +195,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       e.stopPropagation();
                       onDeleteProject(project.id);
                     }}
-                    className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-50 text-[var(--color-muted)] hover:text-[#dc2626] rounded transition"
+                    className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-50 text-[var(--color-muted)] hover:text-red-600 rounded transition"
                     title="Delete blueprint"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -207,8 +207,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <Clock className="w-3.5 h-3.5" />
                     {project.updatedAt}
                   </span>
-                  <span className="text-[#dc2626] font-semibold group-hover:translate-x-0.5 transition flex items-center gap-1">
-                    OPEN CAD STUDIO
+                  <span className="text-[var(--color-accent)] font-semibold group-hover:translate-x-0.5 transition flex items-center gap-1">
+                    OPEN STUDIO
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>

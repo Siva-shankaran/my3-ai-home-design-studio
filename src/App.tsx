@@ -21,6 +21,11 @@ import { MaketGeneratorModal } from './components/MaketGeneratorModal';
 import { DesignConceptModal } from './components/DesignConceptModal';
 import { FloorplanStatsDrawer } from './components/FloorplanStatsDrawer';
 import { materialCatalogService } from './services/materialCatalogService';
+import { CustomCursor } from './components/editorial/CustomCursor';
+import { MenuOverlay } from './components/editorial/MenuOverlay';
+import { BottomDock } from './components/editorial/BottomDock';
+import { StudioStepTracker } from './components/editorial/StudioStepTracker';
+import { useLenisSmoothScroll } from './animations/useLenisSmoothScroll';
 import type { Language } from './services/i18n';
 import { 
   Square, Move, DoorOpen, AppWindow, Armchair, 
@@ -81,6 +86,10 @@ export const App: React.FC = () => {
   const [isMaketModalOpen, setIsMaketModalOpen] = useState<boolean>(false);
   const [isConceptModalOpen, setIsConceptModalOpen] = useState<boolean>(false);
   const [isStatsDrawerOpen, setIsStatsDrawerOpen] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+
+  // Initialize smooth scrolling with Lenis on landing page
+  useLenisSmoothScroll(currentView === 'landing');
 
   const viewContainerRef = useRef<HTMLDivElement>(null);
 
@@ -177,6 +186,9 @@ export const App: React.FC = () => {
 
   return (
     <div className="w-screen h-screen flex flex-col bg-[var(--color-paper)] text-[var(--color-ink)] overflow-hidden font-sans">
+      {/* Desktop Custom Cursor */}
+      <CustomCursor />
+
       {/* Top Main Navbar */}
       <Navbar
         currentView={currentView}
@@ -193,6 +205,7 @@ export const App: React.FC = () => {
         onOpenTour={() => setIsTourOpen(true)}
         onOpenMaketGenerator={() => setIsMaketModalOpen(true)}
         onOpenConceptGenerator={() => setIsConceptModalOpen(true)}
+        onOpenMenu={() => setIsMenuOpen(true)}
         language={language}
         onToggleLanguage={() => setLanguage(l => l === 'en' ? 'ta' : 'en')}
         cadStyleMode={cadStyleMode}
@@ -202,12 +215,15 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <div ref={viewContainerRef} className="flex-1 relative overflow-hidden flex w-full h-full">
+      <div ref={viewContainerRef} className="flex-1 relative overflow-hidden flex w-full h-full pb-14 md:pb-0">
         {currentView === 'landing' && (
-          <LandingPage
-            onGetStarted={() => navigateTo('dashboard')}
-            onExploreDemo={() => navigateTo('editor2d')}
-          />
+          <div className="w-full h-full overflow-y-auto overflow-x-hidden">
+            <LandingPage
+              onGetStarted={() => navigateTo('dashboard')}
+              onExploreDemo={() => navigateTo('editor2d')}
+              onOpenConcepts={() => setIsConceptModalOpen(true)}
+            />
+          </div>
         )}
 
         {currentView === 'dashboard' && (
@@ -223,154 +239,182 @@ export const App: React.FC = () => {
         )}
 
         {(currentView === 'editor2d' || currentView === 'studio3d') && (
-          <>
-            {/* Left Vertical CAD Toolstrip (Charcoal Grey + Moonlight Silver + Signal Red) */}
-            <div className="w-11 sm:w-14 bg-[var(--color-paper-2)] border-r border-[var(--color-rule)] flex flex-col items-center py-2.5 sm:py-3 space-y-1.5 sm:space-y-2 z-10 select-none shrink-0">
-              <button
-                onClick={() => setSelectedTool('select')}
-                className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${selectedTool === 'select' ? 'bg-[#dc2626] text-white shadow-sm' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
-                title="Select & Move (V)"
-              >
-                <Move className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setSelectedTool('room')}
-                className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${selectedTool === 'room' ? 'bg-[#dc2626] text-white shadow-sm' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
-                title="Draw Room Box (R)"
-              >
-                <Square className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setSidePanel(p => p === 'furniture' ? null : 'furniture')}
-                className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${sidePanel === 'furniture' ? 'bg-[#dc2626] text-white shadow-sm' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
-                title="Bring Your Own Furniture"
-              >
-                <Armchair className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setSidePanel(p => p === 'chat' ? null : 'chat')}
-                className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${sidePanel === 'chat' ? 'bg-[#dc2626] text-white shadow-sm' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
-                title="Talk to Your Plan (AI Chat)"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setSidePanel(p => p === 'tamilNadu' ? null : 'tamilNadu')}
-                className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${sidePanel === 'tamilNadu' ? 'bg-[#dc2626] text-white shadow-sm' : 'text-[#dc2626] hover:bg-[var(--color-paper-3)]'}`}
-                title="Tamil Nadu Site Studio (TNCDBR-2019, Soil & Presets)"
-              >
-                <Landmark className="w-4 h-4" />
-              </button>
+          <div className="flex-1 flex flex-col w-full h-full overflow-hidden">
+            {/* Architectural Studio Step Progress Tracker */}
+            <StudioStepTracker
+              currentStep={selectedTool === 'room' ? 'style' : 'generate'}
+              onStepClick={(step) => {
+                if (step === 'upload') setIsDigitizerOpen(true);
+                if (step === 'style') setIsInteriorRefOpen(true);
+                if (step === 'export') setIsExportOpen(true);
+              }}
+            />
 
-              <div className="w-6 sm:w-8 h-[1px] bg-[var(--color-rule)] my-1.5 sm:my-2" />
+            <div className="flex-1 relative overflow-hidden flex w-full h-full">
+              {/* Left Vertical CAD Toolstrip (Terracotta Accent) */}
+              <div className="w-11 sm:w-14 bg-[var(--color-paper-2)] border-r border-[var(--color-rule)] flex flex-col items-center py-2.5 sm:py-3 space-y-1.5 sm:space-y-2 z-10 select-none shrink-0">
+                <button
+                  onClick={() => setSelectedTool('select')}
+                  className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${selectedTool === 'select' ? 'bg-[var(--color-accent)] text-white shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
+                  title="Select & Move (V)"
+                >
+                  <Move className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setSelectedTool('room')}
+                  className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${selectedTool === 'room' ? 'bg-[var(--color-accent)] text-white shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
+                  title="Draw Room Box (R)"
+                >
+                  <Square className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setSidePanel(p => p === 'furniture' ? null : 'furniture')}
+                  className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${sidePanel === 'furniture' ? 'bg-[var(--color-accent)] text-white shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
+                  title="Bring Your Own Furniture"
+                >
+                  <Armchair className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setSidePanel(p => p === 'chat' ? null : 'chat')}
+                  className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${sidePanel === 'chat' ? 'bg-[var(--color-accent)] text-white shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
+                  title="Talk to Your Plan (AI Chat)"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setSidePanel(p => p === 'tamilNadu' ? null : 'tamilNadu')}
+                  className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${sidePanel === 'tamilNadu' ? 'bg-[var(--color-accent)] text-white shadow-xs' : 'text-[var(--color-accent)] hover:bg-[var(--color-paper-3)]'}`}
+                  title="Tamil Nadu Site Studio (TNCDBR-2019, Soil & Presets)"
+                >
+                  <Landmark className="w-4 h-4" />
+                </button>
 
-              <button
-                onClick={() => setIsPitchOpen(true)}
-                className="p-2 sm:p-2.5 rounded bg-red-50 text-[#dc2626] border border-[#dc2626]/30 hover:bg-[#dc2626] hover:text-white transition cursor-pointer"
-                title="Executive Client Presentation"
-              >
-                <Award className="w-4 h-4" />
-              </button>
+                <div className="w-6 sm:w-8 h-[1px] bg-[var(--color-rule)] my-1.5 sm:my-2" />
 
-              <button
-                onClick={() => setIsInteriorRefOpen(true)}
-                className="p-2 sm:p-2.5 rounded bg-slate-100 text-[var(--color-ink)] border border-[var(--color-rule)] hover:bg-[#dc2626] hover:text-white transition cursor-pointer"
-                title="3D Interior Reference Visuals"
-              >
-                <Sparkles className="w-4 h-4" />
-              </button>
+                <button
+                  onClick={() => setIsPitchOpen(true)}
+                  className="p-2 sm:p-2.5 rounded bg-[var(--color-accent-subtle)] text-[var(--color-accent)] border border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)] hover:text-white transition cursor-pointer"
+                  title="Executive Client Presentation"
+                >
+                  <Award className="w-4 h-4" />
+                </button>
 
-              <button
-                onClick={() => setIsStatsDrawerOpen(prev => !prev)}
-                className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${isStatsDrawerOpen ? 'bg-[#dc2626] text-white shadow-sm' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
-                title="Plan Schedule, 3D Cameras & Fixtures Inspector (Maket Spec)"
-              >
-                <Layers className="w-4 h-4" />
-              </button>
-            </div>
+                <button
+                  onClick={() => setIsInteriorRefOpen(true)}
+                  className="p-2 sm:p-2.5 rounded bg-[var(--color-paper-3)] text-[var(--color-ink)] border border-[var(--color-rule)] hover:bg-[var(--color-accent)] hover:text-white transition cursor-pointer"
+                  title="3D Interior Reference Visuals"
+                >
+                  <Sparkles className="w-4 h-4" />
+                </button>
 
-            {/* Central Studio Viewport */}
-            <div className="flex-1 relative overflow-hidden bg-[var(--color-paper)]">
-              {currentView === 'editor2d' && (
-                <CADCanvas2D
-                  project={activeProject}
-                  onUpdateProject={handleUpdateProject}
-                  selectedTool={selectedTool}
-                  unit={unit}
-                  activeFloor={activeFloor}
-                  language={language}
-                  cadStyleMode={cadStyleMode}
-                  isMultiFloorSideBySide={isMultiFloorSideBySide}
-                  onSelectFloor={setActiveFloor}
-                  onToggleSideBySide={setIsMultiFloorSideBySide}
-                  onToggleCadStyle={setCadStyleMode}
-                  onToggleLanguage={setLanguage}
-                  onOpenExport={() => setIsExportOpen(true)}
-                  onOpenInteriorReferences={() => setIsInteriorRefOpen(true)}
-                  onToggleStatsDrawer={() => setIsStatsDrawerOpen(prev => !prev)}
-                />
+                <button
+                  onClick={() => setIsStatsDrawerOpen(prev => !prev)}
+                  className={`p-2 sm:p-2.5 rounded transition cursor-pointer ${isStatsDrawerOpen ? 'bg-[var(--color-accent)] text-white shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] hover:bg-[var(--color-paper-3)]'}`}
+                  title="Plan Schedule, 3D Cameras & Fixtures Inspector (Maket Spec)"
+                >
+                  <Layers className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Central Studio Viewport */}
+              <div className="flex-1 relative overflow-hidden bg-[var(--color-paper)]">
+                {currentView === 'editor2d' && (
+                  <CADCanvas2D
+                    project={activeProject}
+                    onUpdateProject={handleUpdateProject}
+                    selectedTool={selectedTool}
+                    unit={unit}
+                    activeFloor={activeFloor}
+                    language={language}
+                    cadStyleMode={cadStyleMode}
+                    isMultiFloorSideBySide={isMultiFloorSideBySide}
+                    onSelectFloor={setActiveFloor}
+                    onToggleSideBySide={setIsMultiFloorSideBySide}
+                    onToggleCadStyle={setCadStyleMode}
+                    onToggleLanguage={setLanguage}
+                    onOpenExport={() => setIsExportOpen(true)}
+                    onOpenInteriorReferences={() => setIsInteriorRefOpen(true)}
+                    onToggleStatsDrawer={() => setIsStatsDrawerOpen(prev => !prev)}
+                  />
+                )}
+
+                {currentView === 'studio3d' && (
+                  <Studio3D
+                    project={activeProject}
+                    onUpdateProject={handleUpdateProject}
+                    activeFloor={activeFloor}
+                  />
+                )}
+              </div>
+
+              {/* Right Collapsible Feature Panels with Mobile Drawer Overlay */}
+              {sidePanel === 'chat' && (
+                <div className="fixed sm:static inset-y-0 right-0 z-40 sm:z-10 w-full sm:w-96 border-l border-[var(--color-rule)] bg-[var(--color-paper-2)] flex flex-col shadow-2xl sm:shadow-lg">
+                  <div className="sm:hidden flex items-center justify-between p-2.5 border-b border-[var(--color-rule)] bg-[var(--color-paper-3)] font-mono text-xs">
+                    <span className="font-bold text-[var(--color-ink)]">TALK TO YOUR PLAN</span>
+                    <button onClick={() => setSidePanel(null)} className="px-2 py-0.5 bg-[var(--color-paper)] border border-[var(--color-rule)] rounded font-bold text-xs cursor-pointer">
+                      ✕ CLOSE
+                    </button>
+                  </div>
+                  <AiChatAssistant
+                    project={activeProject}
+                    onUpdateProject={handleUpdateProject}
+                    activeFloor={activeFloor}
+                  />
+                </div>
               )}
 
-              {currentView === 'studio3d' && (
-                <Studio3D
-                  project={activeProject}
-                  onUpdateProject={handleUpdateProject}
-                  activeFloor={activeFloor}
-                />
+              {sidePanel === 'furniture' && (
+                <div className="fixed sm:static inset-y-0 right-0 z-40 sm:z-10 w-full sm:w-80 border-l border-[var(--color-rule)] bg-[var(--color-paper-2)] flex flex-col shadow-2xl sm:shadow-lg">
+                  <div className="sm:hidden flex items-center justify-between p-2.5 border-b border-[var(--color-rule)] bg-[var(--color-paper-3)] font-mono text-xs">
+                    <span className="font-bold text-[var(--color-ink)]">FURNITURE CATALOG</span>
+                    <button onClick={() => setSidePanel(null)} className="px-2 py-0.5 bg-[var(--color-paper)] border border-[var(--color-rule)] rounded font-bold text-xs cursor-pointer">
+                      ✕ CLOSE
+                    </button>
+                  </div>
+                  <FurniturePanel
+                    project={activeProject}
+                    onUpdateProject={handleUpdateProject}
+                    unit={unit}
+                  />
+                </div>
+              )}
+
+              {sidePanel === 'tamilNadu' && (
+                <div className="fixed sm:static inset-y-0 right-0 z-40 sm:z-10 w-full sm:w-96 border-l border-[var(--color-rule)] bg-[var(--color-paper-2)] flex flex-col shadow-2xl sm:shadow-lg">
+                  <div className="sm:hidden flex items-center justify-between p-2.5 border-b border-[var(--color-rule)] bg-[var(--color-paper-3)] font-mono text-xs">
+                    <span className="font-bold text-[var(--color-ink)]">TAMIL NADU STUDIO</span>
+                    <button onClick={() => setSidePanel(null)} className="px-2 py-0.5 bg-[var(--color-paper)] border border-[var(--color-rule)] rounded font-bold text-xs cursor-pointer">
+                      ✕ CLOSE
+                    </button>
+                  </div>
+                  <TamilNaduStudioPanel
+                    project={activeProject}
+                    onUpdateProject={handleUpdateProject}
+                    onClose={() => setSidePanel(null)}
+                  />
+                </div>
               )}
             </div>
-
-            {/* Right Collapsible Feature Panels with Mobile Drawer Overlay */}
-            {sidePanel === 'chat' && (
-              <div className="fixed sm:static inset-y-0 right-0 z-40 sm:z-10 w-full sm:w-96 border-l border-[var(--color-rule)] bg-[var(--color-paper-2)] flex flex-col shadow-2xl sm:shadow-lg">
-                <div className="sm:hidden flex items-center justify-between p-2.5 border-b border-[var(--color-rule)] bg-[var(--color-paper-3)] font-mono text-xs">
-                  <span className="font-bold text-[var(--color-ink)]">TALK TO YOUR PLAN</span>
-                  <button onClick={() => setSidePanel(null)} className="px-2 py-0.5 bg-[var(--color-paper)] border border-[var(--color-rule)] rounded font-bold text-xs cursor-pointer">
-                    ✕ CLOSE
-                  </button>
-                </div>
-                <AiChatAssistant
-                  project={activeProject}
-                  onUpdateProject={handleUpdateProject}
-                  activeFloor={activeFloor}
-                />
-              </div>
-            )}
-
-            {sidePanel === 'furniture' && (
-              <div className="fixed sm:static inset-y-0 right-0 z-40 sm:z-10 w-full sm:w-80 border-l border-[var(--color-rule)] bg-[var(--color-paper-2)] flex flex-col shadow-2xl sm:shadow-lg">
-                <div className="sm:hidden flex items-center justify-between p-2.5 border-b border-[var(--color-rule)] bg-[var(--color-paper-3)] font-mono text-xs">
-                  <span className="font-bold text-[var(--color-ink)]">FURNITURE CATALOG</span>
-                  <button onClick={() => setSidePanel(null)} className="px-2 py-0.5 bg-[var(--color-paper)] border border-[var(--color-rule)] rounded font-bold text-xs cursor-pointer">
-                    ✕ CLOSE
-                  </button>
-                </div>
-                <FurniturePanel
-                  project={activeProject}
-                  onUpdateProject={handleUpdateProject}
-                  unit={unit}
-                />
-              </div>
-            )}
-
-            {sidePanel === 'tamilNadu' && (
-              <div className="fixed sm:static inset-y-0 right-0 z-40 sm:z-10 w-full sm:w-96 border-l border-[var(--color-rule)] bg-[var(--color-paper-2)] flex flex-col shadow-2xl sm:shadow-lg">
-                <div className="sm:hidden flex items-center justify-between p-2.5 border-b border-[var(--color-rule)] bg-[var(--color-paper-3)] font-mono text-xs">
-                  <span className="font-bold text-[var(--color-ink)]">TAMIL NADU STUDIO</span>
-                  <button onClick={() => setSidePanel(null)} className="px-2 py-0.5 bg-[var(--color-paper)] border border-[var(--color-rule)] rounded font-bold text-xs cursor-pointer">
-                    ✕ CLOSE
-                  </button>
-                </div>
-                <TamilNaduStudioPanel
-                  project={activeProject}
-                  onUpdateProject={handleUpdateProject}
-                  onClose={() => setSidePanel(null)}
-                />
-              </div>
-            )}
-          </>
+          </div>
         )}
       </div>
+
+      {/* Mobile Bottom Dock */}
+      <BottomDock
+        currentView={currentView}
+        onNavigate={navigateTo}
+        onOpenMenu={() => setIsMenuOpen(true)}
+      />
+
+      {/* Full-Screen Architectural Menu Overlay */}
+      <MenuOverlay
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onNavigate={navigateTo}
+        onOpenConcepts={() => setIsConceptModalOpen(true)}
+        onOpenInteriorRef={() => setIsInteriorRefOpen(true)}
+      />
 
       {/* Global Modals */}
       {isExportOpen && (

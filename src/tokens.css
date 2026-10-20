@@ -1,50 +1,43 @@
 /*
-  Hallmark — tokens for MY3 Desings
-  Editorial High-Fashion Architectural Studio Theme (Inspired by Haute Design & Architectural Digest)
-  Palette: Lilac Porcelain + Deep Obsidian Ink + Sculptural Electric Vermilion
-  Tone: Haute Creative Studio, Editorial Typography, Precision Vector Engineering
+  MY3 Designs — Editorial Architectural Design Tokens
+  Palette: Paper #F4F1EA, Ink #161513, Muted #8A857B, Dark #1B1A18, Terracotta #C4552D
+  Tone: Architectural Studio & Editorial Magazine
 */
 
 :root,
-[data-theme="editorial-studio"],
-[data-theme="charcoal-silver"],
-[data-theme="ivory-emerald"] {
-  /* Editorial Lilac Porcelain drafting surfaces & Deep Obsidian Ink */
-  --color-paper:        #f8f6ff;   /* Luminous soft lilac porcelain canvas */
-  --color-paper-2:      #ffffff;   /* Pure crisp white elevated cards & architectural workbench panels */
-  --color-paper-3:      #ede7fb;   /* Frosted lilac interactive chips, inputs & hover surfaces */
-  --color-rule:         #ded6fa;   /* Delicate lilac hairline ruler border */
-  --color-rule-2:       #c3b5f7;   /* Structural accent divider rule */
-  --color-muted:        #685f8f;   /* Editorial metadata, coordinates, architectural notations */
-  --color-neutral:      #49416e;   /* Secondary typography & captions */
-  --color-ink-2:        #27224d;   /* Refined body text */
-  --color-ink:          #0f0b29;   /* Deepest obsidian midnight indigo ink */
+[data-theme="editorial"],
+[data-theme="ivory-emerald"],
+[data-theme="editorial-studio"] {
+  /* Editorial Architectural Surfaces & Ink */
+  --color-paper:        #F4F1EA;   /* Warm architectural paper ground */
+  --color-paper-2:      #FAF8F5;   /* Crisp white elevated card / workbench surface */
+  --color-paper-3:      #EAE5DB;   /* Elevated interactive chips, hover tabs */
+  --color-rule:         #E0DBD1;   /* 1px hairline divider */
+  --color-rule-2:       #CBC4B6;   /* Structural frame rule */
+  --color-muted:        #8A857B;   /* Architectural notations, numbers, coordinates */
+  --color-neutral:      #5E5950;   /* Secondary typography & captions */
+  --color-ink-2:        #2C2A26;   /* Refined editorial body text */
+  --color-ink:          #161513;   /* Deep charcoal obsidian ink */
+  --color-dark:         #1B1A18;   /* Rich dark editorial backdrop */
+  --color-dark-2:       #242220;
 
-  /* Sculptural Electric Vermilion — High-Contrast Creative Accent */
-  --color-accent:       #ff3823;   /* Radiant sculptural vermilion / electric coral */
-  --color-accent-hover: #e62b16;   /* Deep electric vermilion */
-  --color-accent-ink:   #ffffff;   /* Pure white on vermilion */
-  --color-accent-subtle:#fff1f0;   /* Delicate coral blush */
-  --color-focus:        #ff3823;
-
-  /* Secondary Citrus / Chartreuse Pop Accent */
-  --color-lime:         #ccff00;   /* Electric acid chartreuse */
-  --color-vermilion:       #ff462e;
-  --color-vermilion-hover: #e62b16;
-  --color-vermilion-ink:   #ffffff;
-  --color-vermilion-subtle:#fff1f0;
-
-  --color-graphite:     #0c0824;   /* Deepest midnight obsidian ground */
+  /* Terracotta Single Architectural Accent */
+  --color-accent:       #C4552D;   /* Sculptural Terracotta */
+  --color-accent-hover: #A94420;   /* Deepened Terracotta */
+  --color-accent-ink:   #FFFFFF;   /* Crisp white text on terracotta */
+  --color-accent-subtle:#F9EFEB;   /* Terracotta blush tint */
+  --color-focus:        #C4552D;
+  --color-terracotta:   #C4552D;
 
   /* Editorial Haute Typography */
-  --font-display: "Playfair Display", "Italiana", Georgia, serif;
-  --font-editorial: "Playfair Display", "Italiana", Georgia, serif;
-  --font-body:    "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-serif:   "Playfair Display", "Italiana", Georgia, serif;
+  --font-display: "Fraunces", "Instrument Serif", Georgia, serif;
+  --font-editorial: "Instrument Serif", "Fraunces", Georgia, serif;
+  --font-body:    "Inter Tight", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif:   "Fraunces", "Instrument Serif", Georgia, serif;
   --font-label:   "JetBrains Mono", ui-monospace, "SF Mono", monospace;
   --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", monospace;
 
-  --display-weight: 500;
+  --display-weight: 400;
   --display-style:  normal;
 
   --text-xs:   0.75rem;
@@ -55,8 +48,8 @@
   --text-xl:   1.75rem;
   --text-2xl:  2.25rem;
   --text-3xl:  2.75rem;
-  --text-display:   clamp(2.5rem, 4.5vw + 0.75rem, 4.5rem);
-  --text-display-s: clamp(1.85rem, 3vw + 0.5rem, 2.75rem);
+  --text-display:   clamp(2.5rem, 5.5vw + 1rem, 5.5rem);
+  --text-display-s: clamp(1.85rem, 3.5vw + 0.5rem, 3.25rem);
 
   --lh-tight:   1.05;
   --lh-snug:    1.2;
@@ -78,7 +71,7 @@
   --space-2xl: 4rem;
   --space-3xl: 6.5rem;
 
-  /* Component shape — tight technical 4px–6px radii */
+  /* Corner radius 4-8px */
   --radius-card:   6px;
   --radius-pill:   4px;
   --radius-input:  4px;
@@ -93,28 +86,23 @@
   --dur-long:  350ms;
 }
 
-/* Complementary High-Contrast Dark Drafting Mode */
+/* Dark Editorial Mode */
 [data-theme="dark"],
-[data-theme="dark-architectural"] {
-  --color-paper:        #0b0f17;  /* Deepest Obsidian Charcoal Ground */
-  --color-paper-2:      #111827;  /* Charcoal elevated toolbars */
-  --color-paper-3:      #1e293b;  /* Brushed Charcoal interactive panels */
-  --color-rule:         #334155;  /* Silver Slate Hairline border */
-  --color-rule-2:       #475569;  /* Divider */
-  --color-muted:        #94a3b8;  /* Moonlight Silver dimensions & meta */
-  --color-neutral:      #cbd5e1;  /* Moonlight Silver secondary labels */
-  --color-ink-2:        #e2e8f0;  /* Moonlight Silver body text */
-  --color-ink:          #f8fafc;  /* Pure Moonlight Silver text */
+.dark {
+  --color-paper:        #1B1A18;  /* Deep architectural dark paper */
+  --color-paper-2:      #242220;  /* Elevated dark charcoal surface */
+  --color-paper-3:      #2E2B27;  /* Active chips in dark mode */
+  --color-rule:         #2E2B27;  /* 1px dark hairline divider */
+  --color-rule-2:       #3D3934;
+  --color-muted:        #8A857B;
+  --color-neutral:      #A8A296;
+  --color-ink-2:        #E2DDD5;
+  --color-ink:          #F4F1EA;  /* Warm ivory ink on dark */
+  --color-dark:         #141312;
+  --color-dark-2:       #1A1918;
 
-  --color-accent:       #ef4444;  /* Radiant Signal Red */
-  --color-accent-hover: #dc2626;
-  --color-accent-ink:   #ffffff;
-  --color-accent-subtle:rgba(239, 68, 68, 0.15);
-
-  --color-vermilion:       #f87171;
-  --color-vermilion-hover: #ef4444;
-  --color-vermilion-ink:   #0f172a;
-  --color-vermilion-subtle:rgba(248, 113, 113, 0.15);
-
-  --color-graphite:     #05080f;
+  --color-accent:       #C4552D;
+  --color-accent-hover: #D96338;
+  --color-accent-ink:   #FFFFFF;
+  --color-accent-subtle:#2D1C16;
 }

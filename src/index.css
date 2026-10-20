@@ -1,9 +1,12 @@
-/* Hallmark · macrostructure: Workbench · theme: Editorial Studio · tone: Haute Architectural Studio */
 @import "./tokens.css";
 @import "tailwindcss";
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: auto; /* Handled smoothly by Lenis */
 }
 
 body {
@@ -11,13 +14,17 @@ body {
   color: var(--color-ink);
   font-family: var(--font-body);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  overflow-x: clip;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Haute Editorial Serif & Display Headings (Inspired by Creative Momentum sample) */
+/* Editorial Display Serif Typography */
 h1, h2, h3, .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  font-weight: 400;
 }
 
 .font-editorial, .font-serif {
@@ -25,13 +32,28 @@ h1, h2, h3, .font-display {
   font-feature-settings: "liga" 1, "dlig" 1;
 }
 
-/* Machine readout mono labels & dimensions */
+/* Technical Monospace & Small Uppercase Labels */
 .font-mono, code, .cad-dim {
   font-family: var(--font-label);
   letter-spacing: var(--tracking-label);
 }
 
-/* Swiss Hairline Borders & Rulers */
+.editorial-label {
+  font-family: var(--font-label);
+  font-size: 0.6875rem; /* 11px */
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-muted);
+}
+
+.section-num {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+}
+
+/* 1px Swiss Hairline Dividers */
 .hairline-b {
   border-bottom: 1px solid var(--color-rule);
 }
@@ -48,55 +70,49 @@ h1, h2, h3, .font-display {
   border: 1px solid var(--color-rule);
 }
 
-/* Architectural grid patterns on Lilac Porcelain */
+/* Subtle Architectural Dotted Grid */
 .cad-grid {
   background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, rgba(195, 181, 247, 0.28) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(195, 181, 247, 0.28) 1px, transparent 1px);
+    linear-gradient(to right, rgba(138, 133, 123, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(138, 133, 123, 0.12) 1px, transparent 1px);
 }
 
 .cad-grid-major {
   background-size: 120px 120px;
   background-image: 
-    linear-gradient(to right, rgba(255, 56, 35, 0.25) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 56, 35, 0.25) 1px, transparent 1px);
+    linear-gradient(to right, rgba(196, 85, 45, 0.15) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(196, 85, 45, 0.15) 1px, transparent 1px);
 }
 
-/* Dark Blueprint Grid */
-.cad-grid-blueprint {
-  background-size: 24px 24px;
-  background-image: 
-    linear-gradient(to right, rgba(255, 70, 46, 0.18) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 70, 46, 0.18) 1px, transparent 1px);
-}
-
-/* Technical 12-Column Blueprint Ruler */
-.blueprint-ruler {
-  background-image: repeating-linear-gradient(
-    to right,
-    rgba(195, 181, 247, 0.4) 0px,
-    rgba(195, 181, 247, 0.4) 1px,
-    transparent 1px,
-    transparent 40px
-  );
-}
-
-/* Custom Scrollbars */
+/* Custom Editorial Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--color-paper-2);
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--color-rule);
   border-radius: 2px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-rule-2);
+  background: var(--color-muted);
+}
+
+/* Accessibility: Visible Focus Rings with Terracotta */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
