@@ -1,4 +1,4 @@
-/* Hallmark · macrostructure: Workbench · theme: Ivory-Emerald · tone: architectural-stationery */
+/* Hallmark · macrostructure: Workbench · theme: Editorial Studio · tone: Haute Architectural Studio */
 @import "./tokens.css";
 @import "tailwindcss";
 
@@ -14,11 +14,15 @@ body {
   overflow-x: clip;
 }
 
-/* Hallmark Space Grotesk Display headings */
+/* Haute Editorial Serif & Display Headings (Inspired by Creative Momentum sample) */
 h1, h2, h3, .font-display {
   font-family: var(--font-display);
-  font-style: normal;
-  letter-spacing: var(--tracking-display);
+  letter-spacing: -0.02em;
+}
+
+.font-editorial, .font-serif {
+  font-family: var(--font-editorial);
+  font-feature-settings: "liga" 1, "dlig" 1;
 }
 
 /* Machine readout mono labels & dimensions */
@@ -44,35 +48,35 @@ h1, h2, h3, .font-display {
   border: 1px solid var(--color-rule);
 }
 
-/* Architectural grid patterns on Moonlight Silver */
+/* Architectural grid patterns on Lilac Porcelain */
 .cad-grid {
   background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, rgba(148, 163, 184, 0.22) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.22) 1px, transparent 1px);
+    linear-gradient(to right, rgba(195, 181, 247, 0.28) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(195, 181, 247, 0.28) 1px, transparent 1px);
 }
 
 .cad-grid-major {
   background-size: 120px 120px;
   background-image: 
-    linear-gradient(to right, rgba(220, 38, 38, 0.2) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(220, 38, 38, 0.2) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 56, 35, 0.25) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 56, 35, 0.25) 1px, transparent 1px);
 }
 
 /* Dark Blueprint Grid */
 .cad-grid-blueprint {
   background-size: 24px 24px;
   background-image: 
-    linear-gradient(to right, rgba(239, 68, 68, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(239, 68, 68, 0.15) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 70, 46, 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 70, 46, 0.18) 1px, transparent 1px);
 }
 
 /* Technical 12-Column Blueprint Ruler */
 .blueprint-ruler {
   background-image: repeating-linear-gradient(
     to right,
-    rgba(148, 163, 184, 0.3) 0px,
-    rgba(148, 163, 184, 0.3) 1px,
+    rgba(195, 181, 247, 0.4) 0px,
+    rgba(195, 181, 247, 0.4) 1px,
     transparent 1px,
     transparent 40px
   );

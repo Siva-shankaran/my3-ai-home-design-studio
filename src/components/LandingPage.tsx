@@ -101,271 +101,288 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onExplor
   return (
     <div ref={containerRef} className="w-full h-full overflow-y-auto overflow-x-hidden bg-[var(--color-paper)] text-[var(--color-ink)] select-none font-sans">
       {/* ──────────────────────────────────────────────────────────────
-          HERO SECTION — 15 Split Studio + 05 Workbench
-          Asymmetric: Architectural brief on left, live vector CAD on right
-          Palette: Charcoal Grey + Moonlight Silver + Signal Red
+          HERO SECTION — Haute Editorial Studio Style (Creative Momentum)
+          High-Fashion Serif Typography + Sculptural Electric Vermilion
           ────────────────────────────────────────────────────────────── */}
-      <section className="relative pt-8 sm:pt-12 pb-12 sm:pb-16 px-3.5 sm:px-6 md:px-8 border-b border-[var(--color-rule)]">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <section className="relative pt-10 sm:pt-16 pb-14 sm:pb-20 px-3.5 sm:px-6 md:px-8 border-b border-[var(--color-rule)] bg-[var(--color-paper)]">
+        {/* Subtle Ambient Editorial Aura */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#c4b5fd]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 left-10 w-80 h-80 bg-[#ff3823]/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto space-y-8 relative z-10">
           
-          {/* Left Column (Lg: cols 1-6): Technical Brief & Command Console */}
-          <div className="lg:col-span-6 space-y-5 sm:space-y-6">
-            <div className="gsap-hero-badge inline-flex items-center space-x-2 text-[11px] font-mono tracking-wider text-[#dc2626] bg-red-50 border border-red-200 px-2.5 py-1 rounded">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#dc2626] animate-pulse" />
-              <span>SYSTEM SPEC // TNCDBR-2019 & IS 456 CAD ENGINE</span>
+          {/* Top Micro Marginalia Strip */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-rule)] pb-4 text-[11px] font-mono tracking-wider text-[var(--color-muted)]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
+              <span className="text-[var(--color-ink)] font-bold">IDEAS THAT MOVE —</span>
+              <span>TAMIL NADU AI ARCHITECTURAL STUDIO</span>
             </div>
 
-            <div className="space-y-3">
-              <h1 className="gsap-hero-title text-2xl sm:text-4xl md:text-5xl font-bold text-[var(--color-ink)] tracking-tight leading-[1.15] sm:leading-[1.1] font-display">
-                Architectural floor plans, structural checks, and 3D visualization.
-              </h1>
-              <p className="gsap-hero-desc text-xs sm:text-sm md:text-base text-[var(--color-ink-2)] leading-relaxed font-sans">
-                Turn your project requirements into an editable 2D CAD vector plan, verified against civil setback rules and rendered in spatial 3D WebGL.
-              </p>
-            </div>
-
-            {/* Architectural Prompt Console */}
-            <div className="gsap-hero-console bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded-md p-3.5 sm:p-4 space-y-3">
-              <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-[var(--color-muted)] border-b border-[var(--color-rule)] pb-2">
-                <span className="flex items-center gap-1.5 text-[var(--color-ink)] font-semibold">
-                  <Cpu className="w-3.5 h-3.5 text-[#dc2626]" />
-                  PLAN SYNTHESIS CONSOLE
-                </span>
-                <span className="text-[#dc2626] font-semibold">NVIDIA NIM // Nemotron 3.5</span>
-              </div>
-
-              <div className="relative">
-                <textarea
-                  rows={2}
-                  value={heroPrompt}
-                  onChange={(e) => setHeroPrompt(e.target.value)}
-                  placeholder="Describe room program, dimensions, and floor distribution..."
-                  className="w-full bg-[var(--color-paper)] border border-[var(--color-rule)] rounded p-2.5 text-xs text-[var(--color-ink)] font-mono placeholder-[var(--color-muted)] focus:outline-none focus:border-[#dc2626] transition resize-none"
-                />
-              </div>
-
-              {/* Architectural Presets */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[10px] text-[var(--color-muted)] font-mono">PRESETS:</span>
-                {presets.map((item, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setHeroPrompt(item.prompt)}
-                    className="gsap-preset-pill text-[10px] text-[var(--color-ink-2)] hover:text-[#dc2626] bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] px-2 py-0.5 rounded border border-[var(--color-rule)] font-mono transition cursor-pointer"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Action Buttons: Signal Red Primary + Moonlight Silver Secondary */}
-              <div className="gsap-hero-actions flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
-                <button
-                  onClick={onGetStarted}
-                  className="w-full sm:w-auto justify-center bg-[#dc2626] hover:bg-[#b91c1c] text-white px-5 py-2.5 rounded-md text-xs font-semibold font-mono flex items-center space-x-2 transition shadow-xs cursor-pointer"
-                >
-                  <span>LAUNCH CAD CANVAS</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-white" />
-                </button>
-                <button
-                  onClick={onExploreDemo}
-                  className="w-full sm:w-auto justify-center bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] text-[var(--color-ink)] px-4 py-2.5 rounded-md text-xs font-semibold font-mono border border-[var(--color-rule)] transition cursor-pointer"
-                >
-                  <span>EXPLORE 3D STUDIO</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Technical Verification Strip */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 pt-2 text-[10px] sm:text-[11px] font-mono text-[var(--color-muted)] border-t border-[var(--color-rule)]">
-              <div className="gsap-verify-chip flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#dc2626] shrink-0" />
-                <span>0.01m Vector Snap</span>
-              </div>
-              <div className="gsap-verify-chip flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#dc2626] shrink-0" />
-                <span>IS 456 Column Grid</span>
-              </div>
-              <div className="gsap-verify-chip flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#dc2626] shrink-0" />
-                <span>DXF & PDF Vector Export</span>
-              </div>
+            <div className="hidden md:flex items-center gap-6">
+              <span>PEOPLE · SPACES · CODE — A HIGHER STANDARD.</span>
+              <span className="text-[var(--color-ink)] font-semibold">13.0827° N, 80.2707° E · CHENNAI</span>
             </div>
           </div>
 
-          {/* Right Column (Lg: cols 7-12): The Live Workbench Blueprint Proof */}
-          <div className="lg:col-span-6 w-full">
-            <div className="gsap-blueprint-card bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded-md overflow-hidden shadow-md max-w-full sm:max-w-md mx-auto">
-              {/* Workbench Header Bar */}
-              <div className="h-10 bg-[var(--color-paper-3)] border-b border-[var(--color-rule)] px-3 sm:px-4 flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center space-x-2">
-                  <span className="w-2.5 h-2.5 rounded-sm bg-[#dc2626]" />
-                  <span className="text-[var(--color-ink)] font-semibold text-[11px] sm:text-xs">VIEWPORT // BLUEPRINT</span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            {/* Left Column (Lg: cols 1-7): Big Editorial Headline & Capsule CTAs */}
+            <div className="lg:col-span-7 space-y-6 sm:space-y-8">
+              
+              <div className="space-y-4">
+                <h1 className="gsap-hero-title text-5xl sm:text-7xl md:text-8xl lg:text-[92px] font-serif text-[var(--color-ink)] tracking-tight leading-[0.98]">
+                  Architectural<br />
+                  <span className="italic font-normal text-[var(--color-ink)]">Momentum</span>
+                </h1>
+                
+                <p className="gsap-hero-desc text-sm sm:text-base md:text-lg text-[var(--color-muted)] leading-relaxed max-w-xl font-sans pt-2">
+                  A space for bold residential ideas, structural clarity, and AI-powered spatial collaboration. Turn requirements into verified 2D CAD vector blueprints and immersive 3D WebGL architecture.
+                </p>
+              </div>
+
+              {/* Capsule Action Buttons (Sample Inspired) */}
+              <div className="gsap-hero-actions flex flex-wrap items-center gap-3.5 pt-1">
+                <button
+                  onClick={onGetStarted}
+                  className="px-7 py-3.5 rounded-full border-2 border-[var(--color-ink)] hover:bg-[var(--color-ink)] hover:text-white text-[var(--color-ink)] font-mono text-xs uppercase tracking-widest font-bold transition flex items-center gap-3 group cursor-pointer shadow-sm bg-transparent"
+                >
+                  <span>EXPLORE CAD STUDIO</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition" />
+                </button>
+
+                <button
+                  onClick={onExploreDemo}
+                  className="px-6 py-3.5 rounded-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white font-mono text-xs uppercase tracking-widest font-bold transition flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
+                >
+                  <Eye className="w-4 h-4" />
+                  <span>3D SPATIAL TOUR</span>
+                </button>
+              </div>
+
+              {/* Architectural Prompt Console */}
+              <div className="gsap-hero-console bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-sm">
+                <div className="flex items-center justify-between text-[11px] font-mono text-[var(--color-muted)] border-b border-[var(--color-rule)] pb-2.5">
+                  <span className="flex items-center gap-1.5 text-[var(--color-ink)] font-bold">
+                    <Cpu className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                    NEURAL PLAN SYNTHESIZER
+                  </span>
+                  <span className="text-[var(--color-accent)] font-semibold">NVIDIA NIM // Nemotron 3.5</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <button
-                    onClick={() => setPreviewFloor(0)}
-                    className={`px-2.5 py-0.5 text-[11px] font-mono rounded transition cursor-pointer ${
-                      previewFloor === 0 
-                        ? 'bg-[#0f172a] text-white font-bold' 
-                        : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] bg-[var(--color-paper)]'
-                    }`}
-                  >
-                    G: GROUND
-                  </button>
-                  <button
-                    onClick={() => setPreviewFloor(1)}
-                    className={`px-2.5 py-0.5 text-[11px] font-mono rounded transition cursor-pointer ${
-                      previewFloor === 1 
-                        ? 'bg-[#0f172a] text-white font-bold' 
-                        : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] bg-[var(--color-paper)]'
-                    }`}
-                  >
-                    1F: FIRST FLOOR
-                  </button>
+
+                <div className="relative">
+                  <textarea
+                    rows={2}
+                    value={heroPrompt}
+                    onChange={(e) => setHeroPrompt(e.target.value)}
+                    placeholder="Describe room program, dimensions, and floor distribution..."
+                    className="w-full bg-[var(--color-paper)] border border-[var(--color-rule)] rounded-xl p-3 text-xs text-[var(--color-ink)] font-mono placeholder-[var(--color-muted)] focus:outline-none focus:border-[var(--color-accent)] transition resize-none"
+                  />
+                </div>
+
+                {/* Architectural Presets */}
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <span className="text-[10px] text-[var(--color-muted)] font-mono font-bold">PRESETS:</span>
+                  {presets.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setHeroPrompt(item.prompt)}
+                      className="gsap-preset-pill text-[10px] text-[var(--color-ink-2)] hover:text-[var(--color-accent)] bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] px-3 py-1 rounded-full border border-[var(--color-rule)] font-mono transition cursor-pointer"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Vector Blueprint Drawing Frame */}
-              <div className="h-72 sm:h-80 bg-[var(--color-paper)] relative p-3 sm:p-4 cad-grid overflow-hidden flex items-center justify-center">
-                {/* 12-Column Blueprint Ruler Overlays */}
-                <div className="absolute top-2 left-2 text-[10px] font-mono text-[var(--color-muted)] flex items-center gap-2">
-                  <span>SCALE 1:50</span>
-                  <span>•</span>
-                  <span>PLOT: 30' - 0" × 50' - 0"</span>
-                  <span>•</span>
-                  <span>ORIENT: NORTH-FACING</span>
+              {/* Technical Verification Strip */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-[11px] font-mono text-[var(--color-muted)] border-t border-[var(--color-rule)]">
+                <div className="gsap-verify-chip flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
+                  <span>0.01m Vector Snap</span>
                 </div>
-
-                <div className="absolute top-2 right-2 text-[10px] font-mono text-[#0f172a] bg-slate-100 border border-[var(--color-rule)] px-2 py-0.5 rounded font-bold">
-                  ✓ TNCDBR RULE 35 PASS
+                <div className="gsap-verify-chip flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
+                  <span>IS 456 RCC Columns</span>
                 </div>
+                <div className="gsap-verify-chip flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent)] shrink-0" />
+                  <span>TNCDBR-2019 Pass</span>
+                </div>
+              </div>
+            </div>
 
-                {/* Simulated 2D Architectural Drawing Canvas */}
-                <div className="relative w-full max-w-[290px] sm:max-w-xs h-56 sm:h-64 border-2 border-[#0f172a] bg-[var(--color-paper-2)]/90 rounded p-1.5 sm:p-2">
-                  {/* Structural Columns in Signal Red (#dc2626) with GSAP Stagger */}
-                  <div className="blueprint-column absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C1" />
-                  <div className="blueprint-column absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C2" />
-                  <div className="blueprint-column absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C3" />
-                  <div className="blueprint-column absolute bottom-1/2 -left-1.5 -translate-y-1/2 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C4" />
-                  <div className="blueprint-column absolute bottom-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C5" />
-                  <div className="blueprint-column absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C6" />
-                  <div className="blueprint-column absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C7" />
-                  <div className="blueprint-column absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#dc2626] border border-black shadow-sm" title="Column C8" />
-
-                  {previewFloor === 0 ? (
-                    /* Ground Floor Layout */
-                    <div ref={blueprintRoomsRef} className="w-full h-full grid grid-cols-2 grid-rows-2 gap-1.5 p-1 text-[10px] font-mono">
-                      {/* Living & Dining */}
-                      <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[var(--color-ink)]">
-                          <span className="font-bold">LIVING ROOM</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">18' × 14'</span>
-                        </div>
-                        <div className="text-[8px] text-[var(--color-muted)]">WARM OAK // CLEARANCE: 42"</div>
-                      </div>
-
-                      {/* Kitchen & Pantry in Agni corner */}
-                      <div className="blueprint-room border border-[#dc2626]/40 bg-red-50/70 p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[#dc2626]">
-                          <span className="font-bold">KITCHEN</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">12' × 10'</span>
-                        </div>
-                        <div className="text-[8px] text-[#dc2626] font-bold">SE CORNER (AGNI)</div>
-                      </div>
-
-                      {/* Guest Bedroom */}
-                      <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[var(--color-ink)]">
-                          <span className="font-bold">BEDROOM 1</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">14' × 12'</span>
-                        </div>
-                        <div className="text-[8px] text-[var(--color-muted)]">EN-SUITE BATH ATTACHED</div>
-                      </div>
-
-                      {/* Central Muttram / Courtyard */}
-                      <div className="blueprint-room border border-slate-400 bg-slate-100 p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[var(--color-ink)]">
-                          <span className="font-bold">CENTRAL COURTYARD</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">10' × 10'</span>
-                        </div>
-                        <div className="text-[8px] text-[#dc2626] font-bold">SKYLIGHT & PERGOLA</div>
-                      </div>
-                    </div>
-                  ) : (
-                    /* First Floor Layout */
-                    <div ref={blueprintRoomsRef} className="w-full h-full grid grid-cols-2 grid-rows-2 gap-1.5 p-1 text-[10px] font-mono">
-                      {/* Master Suite */}
-                      <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[var(--color-ink)]">
-                          <span className="font-bold">MASTER SUITE</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">16' × 14'</span>
-                        </div>
-                        <div className="text-[8px] text-[var(--color-muted)]">WALK-IN CLOSET INCL.</div>
-                      </div>
-
-                      {/* Bedroom 2 */}
-                      <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[var(--color-ink)]">
-                          <span className="font-bold">BEDROOM 2</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">14' × 12'</span>
-                        </div>
-                        <div className="text-[8px] text-[var(--color-muted)]">STUDY ALCOVE</div>
-                      </div>
-
-                      {/* Family Lounge */}
-                      <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[var(--color-ink)]">
-                          <span className="font-bold">FAMILY LOUNGE</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">14' × 10'</span>
-                        </div>
-                        <div className="text-[8px] text-[var(--color-muted)]">OPEN TO BELOW</div>
-                      </div>
-
-                      {/* Open Balcony & Terrace */}
-                      <div className="blueprint-room border border-[#dc2626]/40 bg-red-50/70 p-2 flex flex-col justify-between">
-                        <div className="flex justify-between items-start text-[#dc2626]">
-                          <span className="font-bold">BALCONY TERRACE</span>
-                          <span className="text-[9px] text-[var(--color-muted)]">12' × 8'</span>
-                        </div>
-                        <div className="text-[8px] text-[#dc2626] font-bold">CANTILEVER SLAB</div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Dimension Line Callout in Signal Red */}
-                  <div className="absolute -bottom-5 left-0 right-0 flex items-center justify-between text-[8px] sm:text-[9px] font-mono text-[#dc2626] font-bold">
-                    <span className="border-l border-[#dc2626] h-2" />
-                    <span className="bg-[var(--color-paper)] px-1">← WIDTH: 30' - 0" →</span>
-                    <span className="border-r border-[#dc2626] h-2" />
+            {/* Right Column (Lg: cols 8-12): The Live Workbench Blueprint Showcase */}
+            <div className="lg:col-span-5 w-full">
+              <div className="gsap-blueprint-card bg-[var(--color-paper-2)] border border-[var(--color-rule)] rounded-3xl overflow-hidden shadow-xl max-w-full sm:max-w-md mx-auto relative group">
+                {/* Workbench Header Bar */}
+                <div className="h-12 bg-[var(--color-paper-3)] border-b border-[var(--color-rule)] px-4 flex items-center justify-between text-xs font-mono">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)]" />
+                    <span className="text-[var(--color-ink)] font-bold text-[11px] sm:text-xs">VIEWPORT // BLUEPRINT</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => setPreviewFloor(0)}
+                      className={`px-3 py-1 text-[11px] font-mono rounded-full transition cursor-pointer ${
+                        previewFloor === 0 
+                          ? 'bg-[var(--color-ink)] text-white font-bold' 
+                          : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] bg-[var(--color-paper)]'
+                      }`}
+                    >
+                      G: GROUND
+                    </button>
+                    <button
+                      onClick={() => setPreviewFloor(1)}
+                      className={`px-3 py-1 text-[11px] font-mono rounded-full transition cursor-pointer ${
+                        previewFloor === 1 
+                          ? 'bg-[var(--color-ink)] text-white font-bold' 
+                          : 'text-[var(--color-muted)] hover:text-[var(--color-ink)] bg-[var(--color-paper)]'
+                      }`}
+                    >
+                      1F: UPPER
+                    </button>
                   </div>
                 </div>
 
-                {/* Vastu Compass Widget */}
-                <div className="absolute bottom-2.5 right-2.5 bg-[var(--color-paper)] border border-[var(--color-rule)] p-1.5 rounded text-[8px] sm:text-[9px] font-mono flex items-center gap-1.5 shadow-sm">
-                  <Compass className="w-3.5 h-3.5 text-[#dc2626]" />
-                  <span className="text-[var(--color-ink)] font-semibold">VASTU: 100% PASS</span>
-                </div>
-              </div>
+                {/* Vector Blueprint Drawing Frame */}
+                <div className="h-80 sm:h-96 bg-[var(--color-paper)] relative p-4 cad-grid overflow-hidden flex items-center justify-center">
+                  {/* Top metadata tags */}
+                  <div className="absolute top-3 left-3 text-[10px] font-mono text-[var(--color-muted)] flex items-center gap-2">
+                    <span>SCALE 1:50</span>
+                    <span>•</span>
+                    <span>30' × 50' PLOT</span>
+                  </div>
 
-              {/* Workbench Telemetry Footer */}
-              <div className="bg-[var(--color-paper-3)] border-t border-[var(--color-rule)] px-3 sm:px-4 py-2 sm:py-2.5 flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] font-mono text-[var(--color-muted)]">
-                <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                  <span>BUILT-UP: <span className="text-[var(--color-ink)] font-semibold">2,400 SQ FT</span></span>
-                  <span>FSI: <span className="text-[var(--color-ink)] font-bold">1.65</span></span>
-                  <span>VENT: <span className="text-[#dc2626] font-bold">18.4%</span></span>
+                  <div className="absolute top-3 right-3 text-[10px] font-mono text-[var(--color-accent)] bg-[var(--color-accent-subtle)] border border-[var(--color-accent)]/30 px-2 py-0.5 rounded-full font-bold">
+                    ✓ TNCDBR PASS
+                  </div>
+
+                  {/* Simulated 2D Architectural Drawing Canvas */}
+                  <div className="relative w-full max-w-[300px] h-64 sm:h-72 border-2 border-[var(--color-ink)] bg-[var(--color-paper-2)] rounded-xl p-2 shadow-inner">
+                    {/* Structural Columns in Sculptural Vermilion */}
+                    <div className="blueprint-column absolute -top-1.5 -left-1.5 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C1" />
+                    <div className="blueprint-column absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C2" />
+                    <div className="blueprint-column absolute -top-1.5 -right-1.5 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C3" />
+                    <div className="blueprint-column absolute bottom-1/2 -left-1.5 -translate-y-1/2 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C4" />
+                    <div className="blueprint-column absolute bottom-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C5" />
+                    <div className="blueprint-column absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C6" />
+                    <div className="blueprint-column absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C7" />
+                    <div className="blueprint-column absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[var(--color-accent)] border border-black shadow-sm" title="Column C8" />
+
+                    {previewFloor === 0 ? (
+                      /* Ground Floor Layout */
+                      <div ref={blueprintRoomsRef} className="w-full h-full grid grid-cols-2 grid-rows-2 gap-2 p-1 text-[10px] font-mono">
+                        {/* Living & Dining */}
+                        <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-ink)]">
+                            <span className="font-bold">LIVING ROOM</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">18' × 14'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-muted)]">WARM OAK // 42" CLEAR</div>
+                        </div>
+
+                        {/* Kitchen & Pantry */}
+                        <div className="blueprint-room border border-[var(--color-accent)]/40 bg-[var(--color-accent-subtle)] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-accent)]">
+                            <span className="font-bold">KITCHEN</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">12' × 10'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-accent)] font-bold">SE CORNER (AGNI)</div>
+                        </div>
+
+                        {/* Guest Bedroom */}
+                        <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-ink)]">
+                            <span className="font-bold">BEDROOM 1</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">14' × 12'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-muted)]">ATTACHED BATH</div>
+                        </div>
+
+                        {/* Central Muttram / Courtyard */}
+                        <div className="blueprint-room border border-[#c3b5f7] bg-[#ede7fb] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-ink)]">
+                            <span className="font-bold">MUTTRAM COURT</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">10' × 10'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-accent)] font-bold">OPEN SKYLIGHT</div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* First Floor Layout */
+                      <div ref={blueprintRoomsRef} className="w-full h-full grid grid-cols-2 grid-rows-2 gap-2 p-1 text-[10px] font-mono">
+                        {/* Master Suite */}
+                        <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-ink)]">
+                            <span className="font-bold">MASTER SUITE</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">16' × 14'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-muted)]">WALK-IN CLOSET</div>
+                        </div>
+
+                        {/* Bedroom 2 */}
+                        <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-ink)]">
+                            <span className="font-bold">BEDROOM 2</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">14' × 12'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-muted)]">STUDY ALCOVE</div>
+                        </div>
+
+                        {/* Family Lounge */}
+                        <div className="blueprint-room border border-[var(--color-rule)] bg-[var(--color-paper)] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-ink)]">
+                            <span className="font-bold">FAMILY LOUNGE</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">14' × 10'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-muted)]">MEZZANINE VOID</div>
+                        </div>
+
+                        {/* Open Balcony */}
+                        <div className="blueprint-room border border-[var(--color-accent)]/40 bg-[var(--color-accent-subtle)] rounded-lg p-2 flex flex-col justify-between">
+                          <div className="flex justify-between items-start text-[var(--color-accent)]">
+                            <span className="font-bold">BALCONY TERRACE</span>
+                            <span className="text-[9px] text-[var(--color-muted)]">12' × 8'</span>
+                          </div>
+                          <div className="text-[8px] text-[var(--color-accent)] font-bold">CANTILEVER SLAB</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dimension Line Callout */}
+                    <div className="absolute -bottom-5 left-0 right-0 flex items-center justify-between text-[8px] sm:text-[9px] font-mono text-[var(--color-accent)] font-bold">
+                      <span className="border-l border-[var(--color-accent)] h-2" />
+                      <span className="bg-[var(--color-paper)] px-1">← WIDTH: 30' - 0" →</span>
+                      <span className="border-r border-[var(--color-accent)] h-2" />
+                    </div>
+                  </div>
+
+                  {/* Vastu Compass Widget */}
+                  <div className="absolute bottom-3 right-3 bg-[var(--color-paper)] border border-[var(--color-rule)] px-2.5 py-1.5 rounded-full text-[9px] font-mono flex items-center gap-1.5 shadow-sm">
+                    <Compass className="w-3.5 h-3.5 text-[var(--color-accent)]" />
+                    <span className="text-[var(--color-ink)] font-bold">VASTU: 100% PASS</span>
+                  </div>
                 </div>
-                <div className="text-[#dc2626] hover:text-[#b91c1c] font-semibold cursor-pointer flex items-center gap-1" onClick={onExploreDemo}>
-                  <span>OPEN FULL CAD</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+
+                {/* Workbench Telemetry Footer */}
+                <div className="bg-[var(--color-paper-3)] border-t border-[var(--color-rule)] px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-[var(--color-muted)]">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                    <span>AREA: <span className="text-[var(--color-ink)] font-bold">2,400 SQ FT</span></span>
+                    <span>FSI: <span className="text-[var(--color-ink)] font-bold">1.65</span></span>
+                    <span>VENT: <span className="text-[var(--color-accent)] font-bold">18.4%</span></span>
+                  </div>
+                  <div className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-bold cursor-pointer flex items-center gap-1" onClick={onExploreDemo}>
+                    <span>LAUNCH CAD</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
+          </div>
         </div>
       </section>
-
       {/* ──────────────────────────────────────────────────────────────
           ARCHITECTURAL WORKFLOW MATRIX (Swiss 12-Column Hairline Grid)
           Zero cards, zero drop-shadow blur — hairlines do the work

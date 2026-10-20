@@ -126,13 +126,8 @@ export const App: React.FC = () => {
   const [isDigitizerOpen, setIsDigitizerOpen] = useState<boolean>(false);
   const [isPitchOpen, setIsPitchOpen] = useState<boolean>(false);
   const [isInteriorRefOpen, setIsInteriorRefOpen] = useState<boolean>(false);
-  const [isTourOpen, setIsTourOpen] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      const tourDone = localStorage.getItem('my3_tour_completed');
-      return !tourDone;
-    }
-    return true;
-  });
+  // Startup guide popup is permanently closed by default as requested
+  const [isTourOpen, setIsTourOpen] = useState<boolean>(false);
 
   // User session
   const [user, setUser] = useState<UserProfile>(authService.getCurrentUser());

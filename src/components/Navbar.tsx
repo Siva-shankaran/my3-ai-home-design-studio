@@ -63,16 +63,16 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="flex items-center space-x-2 sm:space-x-6">
         <div 
           onClick={() => onNavigate('landing')}
-          className="flex items-center space-x-2 cursor-pointer group"
+          className="flex items-center space-x-2.5 cursor-pointer group"
           title="Return to Landing Page"
         >
-          <div className="w-7 h-7 rounded bg-[#dc2626] text-white flex items-center justify-center font-bold shadow-sm group-hover:bg-[#b91c1c] transition shrink-0">
+          <div className="w-8 h-8 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center font-bold shadow-sm group-hover:bg-[var(--color-accent-hover)] transition shrink-0">
             <Compass className="w-4 h-4 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm text-[var(--color-ink)] tracking-tight font-display">MY3 Desings</span>
-              <span className="hidden sm:inline-block text-[10px] bg-red-50 text-[#dc2626] px-1.5 py-0.2 rounded border border-red-200 font-mono font-semibold">v2.4 CAD</span>
+              <span className="font-serif font-bold text-base text-[var(--color-ink)] tracking-tight">MY3 <span className="italic font-normal">Desings</span></span>
+              <span className="hidden sm:inline-block text-[10px] bg-[var(--color-accent-subtle)] text-[var(--color-accent)] px-2 py-0.5 rounded-full border border-[var(--color-accent)]/20 font-mono font-bold">STUDIO</span>
             </div>
             <span className="text-[10px] text-[var(--color-muted)] hidden sm:block -mt-0.5 font-mono">
               {language === 'ta' ? 'AI கட்டிட வடிவமைப்பு தளம்' : 'AI Architectural Studio'}
@@ -82,11 +82,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Desktop View Switcher Tabs */}
         {activeProject && currentView !== 'landing' && (
-          <div className="hidden md:flex items-center bg-[var(--color-paper-3)] border border-[var(--color-rule)] p-0.5 rounded space-x-0.5 text-xs font-mono">
+          <div className="hidden md:flex items-center bg-[var(--color-paper-3)] border border-[var(--color-rule)] p-1 rounded-full space-x-1 text-xs font-mono">
             <button
               onClick={() => onNavigate('dashboard')}
-              className={`px-3 py-1 rounded transition flex items-center gap-1.5 cursor-pointer ${
-                currentView === 'dashboard' ? 'bg-[#0f172a] text-white font-semibold shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
+              className={`px-3.5 py-1 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+                currentView === 'dashboard' ? 'bg-[var(--color-ink)] text-white font-semibold shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <Home className="w-3.5 h-3.5" />
@@ -94,8 +94,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               onClick={() => onNavigate('editor2d')}
-              className={`px-3 py-1 rounded transition flex items-center gap-1.5 cursor-pointer ${
-                currentView === 'editor2d' ? 'bg-[#0f172a] text-white font-semibold shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
+              className={`px-3.5 py-1 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+                currentView === 'editor2d' ? 'bg-[var(--color-ink)] text-white font-semibold shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <Grid className="w-3.5 h-3.5" />
@@ -103,8 +103,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             <button
               onClick={() => onNavigate('studio3d')}
-              className={`px-3 py-1 rounded transition flex items-center gap-1.5 cursor-pointer ${
-                currentView === 'studio3d' ? 'bg-[#0f172a] text-white font-semibold shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
+              className={`px-3.5 py-1 rounded-full transition flex items-center gap-1.5 cursor-pointer ${
+                currentView === 'studio3d' ? 'bg-[var(--color-ink)] text-white font-semibold shadow-xs' : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <Box className="w-3.5 h-3.5" />
@@ -115,24 +115,24 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile View Switcher Icons (Phone 320px-767px) */}
         {activeProject && currentView !== 'landing' && (
-          <div className="flex md:hidden items-center bg-[var(--color-paper-3)] border border-[var(--color-rule)] p-0.5 rounded text-xs font-mono">
+          <div className="flex md:hidden items-center bg-[var(--color-paper-3)] border border-[var(--color-rule)] p-1 rounded-full text-xs font-mono">
             <button
               onClick={() => onNavigate('dashboard')}
-              className={`p-1.5 rounded transition cursor-pointer ${currentView === 'dashboard' ? 'bg-[#0f172a] text-white' : 'text-[var(--color-muted)]'}`}
+              className={`p-1.5 rounded-full transition cursor-pointer ${currentView === 'dashboard' ? 'bg-[var(--color-ink)] text-white' : 'text-[var(--color-muted)]'}`}
               title={t.projects}
             >
               <Home className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onNavigate('editor2d')}
-              className={`p-1.5 rounded transition cursor-pointer ${currentView === 'editor2d' ? 'bg-[#0f172a] text-white' : 'text-[var(--color-muted)]'}`}
+              className={`p-1.5 rounded-full transition cursor-pointer ${currentView === 'editor2d' ? 'bg-[var(--color-ink)] text-white' : 'text-[var(--color-muted)]'}`}
               title={t.cadCanvas}
             >
               <Grid className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => onNavigate('studio3d')}
-              className={`p-1.5 rounded transition cursor-pointer ${currentView === 'studio3d' ? 'bg-[#0f172a] text-white' : 'text-[var(--color-muted)]'}`}
+              className={`p-1.5 rounded-full transition cursor-pointer ${currentView === 'studio3d' ? 'bg-[var(--color-ink)] text-white' : 'text-[var(--color-muted)]'}`}
               title={t.studio3d}
             >
               <Box className="w-3.5 h-3.5" />
