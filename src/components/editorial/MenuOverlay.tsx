@@ -13,7 +13,7 @@ interface MenuItem {
 interface MenuOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigate: (view: 'landing' | 'dashboard' | 'editor2d' | 'studio3d') => void;
+  onNavigate: (view: 'landing' | 'dashboard' | 'editor2d' | 'studio3d' | 'wizard') => void;
   onOpenConcepts?: () => void;
   onOpenInteriorRef?: () => void;
 }
@@ -55,12 +55,11 @@ export const MenuOverlay: React.FC<MenuOverlayProps> = ({
     },
     {
       number: '04',
-      title: '3-Concept Synthesis',
-      category: 'Deterministic Layout Generator',
+      title: 'AI Architectural Studio Wizard',
+      category: '8-Step Requirements to 15-Sheet Issue Set',
       action: () => {
         onClose();
-        if (onOpenConcepts) onOpenConcepts();
-        else onNavigate('editor2d');
+        onNavigate('wizard');
       },
       previewImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80'
     },

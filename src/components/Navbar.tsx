@@ -9,8 +9,8 @@ import type { UserProfile, Project } from '../types';
 import { type Language, translations } from '../services/i18n';
 
 interface NavbarProps {
-  currentView: 'landing' | 'dashboard' | 'editor2d' | 'studio3d';
-  onNavigate: (view: 'landing' | 'dashboard' | 'editor2d' | 'studio3d') => void;
+  currentView: 'landing' | 'dashboard' | 'editor2d' | 'studio3d' | 'wizard';
+  onNavigate: (view: 'landing' | 'dashboard' | 'editor2d' | 'studio3d' | 'wizard') => void;
   activeProject: Project | null;
   user: UserProfile;
   unit: 'imperial' | 'metric';
@@ -267,7 +267,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Start Designing Primary Terracotta CTA */}
             <button
-              onClick={() => onNavigate('dashboard')}
+              onClick={() => onNavigate('wizard')}
               className="px-4 py-1.5 rounded-[var(--radius-card)] bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-white text-xs font-mono font-medium tracking-wider uppercase transition shadow-xs cursor-pointer"
             >
               Start Designing

@@ -1,8 +1,8 @@
 import { Project, Room, FurnitureItem, ChatMessage } from '../types';
 
-const BASE_URL = import.meta.env.VITE_NVIDIA_BASE_URL || 'https://integrate.api.nvidia.com/v1';
-const NEMOTRON_KEY = import.meta.env.VITE_NVIDIA_NEMOTRON_KEY || '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';
-const DEEPSEEK_KEY = import.meta.env.VITE_NVIDIA_DEEPSEEK_KEY || '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';
+const BASE_URL = import.meta.env.VITE_NVIDIA_BASE_URL || '/api/ai';
+const NEMOTRON_KEY = import.meta.env.VITE_NVIDIA_NEMOTRON_KEY || '';
+const DEEPSEEK_KEY = import.meta.env.VITE_NVIDIA_DEEPSEEK_KEY || '';
 
 export interface GenerationParams {
   sqft: number;

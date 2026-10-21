@@ -360,3 +360,8 @@ export interface EngineerConsultationRequest {
   aiEngineerResponse?: string;
   createdAt: string;
 }
+
+// v2 Unified Architectural Architecture & Schemas
+export * from '../engine/intake/schemas';
+export * from './project';
+

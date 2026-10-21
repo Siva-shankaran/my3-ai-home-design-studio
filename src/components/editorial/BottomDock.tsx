@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Home, Compass, Box, FolderKanban, Menu } from 'lucide-react';
 
 interface BottomDockProps {
-  currentView: 'landing' | 'dashboard' | 'editor2d' | 'studio3d';
-  onNavigate: (view: 'landing' | 'dashboard' | 'editor2d' | 'studio3d') => void;
+  currentView: 'landing' | 'dashboard' | 'editor2d' | 'studio3d' | 'wizard';
+  onNavigate: (view: 'landing' | 'dashboard' | 'editor2d' | 'studio3d' | 'wizard') => void;
   onOpenMenu: () => void;
 }
 

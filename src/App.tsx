@@ -25,6 +25,7 @@ import { CustomCursor } from './components/editorial/CustomCursor';
 import { MenuOverlay } from './components/editorial/MenuOverlay';
 import { BottomDock } from './components/editorial/BottomDock';
 import { StudioStepTracker } from './components/editorial/StudioStepTracker';
+import { WizardController } from './components/wizard/WizardController';
 import { useLenisSmoothScroll } from './animations/useLenisSmoothScroll';
 import type { Language } from './services/i18n';
 import { 
@@ -65,12 +66,14 @@ initialSampleProject.renders = [
 // Reverse-engineered Maket.ai 1,300 sqft residential layout asset
 const maketSampleProject: Project = designService.getMaketSampleProject();
 
+export type AppView = 'landing' | 'dashboard' | 'editor2d' | 'studio3d' | 'wizard';
+
 // Helper to determine initial view strictly from URL hash; defaults ALWAYS to 'landing'
-const getInitialView = (): 'landing' | 'dashboard' | 'editor2d' | 'studio3d' => {
+const getInitialView = (): AppView => {
   if (typeof window !== 'undefined') {
     const raw = window.location.hash.replace(/^#\/?/, '').trim();
-    if (raw === 'dashboard' || raw === 'editor2d' || raw === 'studio3d') {
-      return raw;
+    if (raw === 'dashboard' || raw === 'editor2d' || raw === 'studio3d' || raw === 'wizard') {
+      return raw as AppView;
     }
   }
   return 'landing'; // Default first view is always the Landing Page
@@ -78,7 +81,7 @@ const getInitialView = (): 'landing' | 'dashboard' | 'editor2d' | 'studio3d' => 
 
 export const App: React.FC = () => {
   // Navigation & Mode State — Defaults to Landing Page first, preserved step-by-step
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'editor2d' | 'studio3d'>(getInitialView);
+  const [currentView, setCurrentView] = useState<AppView>(getInitialView);
   const [projects, setProjects] = useState<Project[]>([maketSampleProject, initialSampleProject]);
   const [activeProject, setActiveProject] = useState<Project>(maketSampleProject);
 
@@ -108,7 +111,7 @@ export const App: React.FC = () => {
   }, [currentView]);
 
   // Synchronize URL hash when currentView changes
-  const navigateTo = (view: 'landing' | 'dashboard' | 'editor2d' | 'studio3d') => {
+  const navigateTo = (view: AppView) => {
     setCurrentView(view);
     if (typeof window !== 'undefined') {
       window.location.hash = view === 'landing' ? '#/' : `#/${view}`;
@@ -119,8 +122,8 @@ export const App: React.FC = () => {
   useEffect(() => {
     const onHashChange = () => {
       const raw = window.location.hash.replace(/^#\/?/, '').trim();
-      if (raw === 'dashboard' || raw === 'editor2d' || raw === 'studio3d') {
-        setCurrentView(raw);
+      if (raw === 'dashboard' || raw === 'editor2d' || raw === 'studio3d' || raw === 'wizard') {
+        setCurrentView(raw as AppView);
       } else {
         setCurrentView('landing');
       }
@@ -219,9 +222,17 @@ export const App: React.FC = () => {
         {currentView === 'landing' && (
           <div className="w-full h-full overflow-y-auto overflow-x-hidden">
             <LandingPage
-              onGetStarted={() => navigateTo('dashboard')}
+              onGetStarted={() => navigateTo('wizard')}
               onExploreDemo={() => navigateTo('editor2d')}
-              onOpenConcepts={() => setIsConceptModalOpen(true)}
+              onOpenConcepts={() => navigateTo('wizard')}
+            />
+          </div>
+        )}
+
+        {currentView === 'wizard' && (
+          <div className="w-full h-full overflow-y-auto overflow-x-hidden">
+            <WizardController
+              onExitToLanding={() => navigateTo('landing')}
             />
           </div>
         )}
@@ -242,11 +253,12 @@ export const App: React.FC = () => {
           <div className="flex-1 flex flex-col w-full h-full overflow-hidden">
             {/* Architectural Studio Step Progress Tracker */}
             <StudioStepTracker
-              currentStep={selectedTool === 'room' ? 'style' : 'generate'}
+              currentStep="studio"
+              completedSteps={['requirements', 'synthesis', 'three_designs']}
               onStepClick={(step) => {
-                if (step === 'upload') setIsDigitizerOpen(true);
-                if (step === 'style') setIsInteriorRefOpen(true);
-                if (step === 'export') setIsExportOpen(true);
+                if (step !== 'studio') {
+                  navigateTo('wizard');
+                }
               }}
             />
 

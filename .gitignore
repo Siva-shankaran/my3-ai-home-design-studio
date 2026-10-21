@@ -17,6 +17,11 @@ dist-ssr
 .env.*
 !.env.example
 
+# Confidential Reference Materials (Never committed)
+reference/
+reference/*
+*.pdf
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
