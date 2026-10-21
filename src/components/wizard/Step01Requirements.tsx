@@ -20,7 +20,14 @@ import {
   Shield,
   Layers,
   Camera,
-  RotateCcw
+  RotateCcw,
+  Car,
+  Home,
+  Utensils,
+  Wind,
+  ShieldCheck,
+  Check,
+  Info
 } from 'lucide-react';
 
 interface Step01RequirementsProps {
@@ -28,6 +35,11 @@ interface Step01RequirementsProps {
   onSubmit: (brief: DesignBrief) => void;
   onOpenAssumptionMode?: () => void;
 }
+
+export type BuildingTypology = 'MODERN_VILLA' | 'CHETTINAD_COURTYARD' | 'STILT_DUPLEX' | 'URBAN_ROW_HOUSE';
+export type RoofArchitecture = 'FLAT_RCC_TERRACE' | 'SLOPED_MANGALORE_TILE' | 'MODERN_GABLE' | 'PERGOLA_DECK';
+export type StaircaseDesign = 'INTERNAL_DOG_LEGGED' | 'FLOATING_TIMBER' | 'SPIRAL_CORE' | 'EXTERNAL_RENTAL';
+export type CarType = 'SUV' | 'SEDAN' | 'HATCHBACK' | 'EV_CHARGING';
 
 export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
   initialBrief,
@@ -65,16 +77,23 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
     initialBrief?.building?.targetBuiltUpSqFt || 1800
   );
 
-  // Program / Rooms
+  // Building Typology with Visual Cards
+  const [typology, setTypology] = useState<BuildingTypology>('MODERN_VILLA');
+  const [roofArch, setRoofArch] = useState<RoofArchitecture>('FLAT_RCC_TERRACE');
+  const [staircaseDesign, setStaircaseDesign] = useState<StaircaseDesign>('INTERNAL_DOG_LEGGED');
+
+  // Room Program
   const [bedrooms, setBedrooms] = useState<number>(
     initialBrief?.program?.bedrooms || 3
   );
+  const [hasGuestRoom, setHasGuestRoom] = useState<boolean>(true);
   const [bathrooms, setBathrooms] = useState<number>(
     initialBrief?.program?.bathrooms || 3
   );
   const [kitchenType, setKitchenType] = useState<'OPEN' | 'SEMI_OPEN' | 'CLOSED'>(
     initialBrief?.program?.kitchenType || 'SEMI_OPEN'
   );
+  const [ventilationMode, setVentilationMode] = useState<'CROSS_BREEZE' | 'MUTTRAM_SIPHON' | 'WIND_CATCHER'>('CROSS_BREEZE');
   const [poojaRoom, setPoojaRoom] = useState<boolean>(
     initialBrief?.program?.poojaRoom ?? true
   );
@@ -84,11 +103,14 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
   const [thinnaiVerandah, setThinnaiVerandah] = useState<boolean>(
     initialBrief?.program?.thinnaiVerandah || false
   );
-  const [cars, setCars] = useState<number>(
-    initialBrief?.program?.parkingSpaces?.cars ?? 1
-  );
 
-  // Regulations
+  // Dedicated Car Parking
+  const [enableDedicatedParking, setEnableDedicatedParking] = useState<boolean>(true);
+  const [cars, setCars] = useState<number>(1);
+  const [carType, setCarType] = useState<CarType>('SUV');
+  const [parkingEnclosure, setParkingEnclosure] = useState<'COVERED_PORTICO' | 'OPEN_DRIVEWAY'>('COVERED_PORTICO');
+
+  // Regulations & Vastu
   const [codeProfile, setCodeProfile] = useState<'TNCDBR_2019' | 'NBC_2016' | 'IRC'>(
     initialBrief?.regulations?.codeProfile || 'TNCDBR_2019'
   );
@@ -98,6 +120,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
   const [soilType, setSoilType] = useState<RegulatoryAndVastu['soilType']>(
     initialBrief?.regulations?.soilType || 'LOAM'
   );
+  const [cityLocation, setCityLocation] = useState<string>('Chennai / Tamil Nadu');
 
   // Setbacks (Editable with auto-derive)
   const [frontSetback, setFrontSetback] = useState<number>(5);
@@ -122,82 +145,88 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
     } else if (parsedPlot.widthFt <= 25) {
       setFrontSetback(4);
       setRearSetback(3);
-      setSide1Setback(2.5);
-      setSide2Setback(2.5);
+      setSide1Setback(2);
+      setSide2Setback(2);
     } else {
       setFrontSetback(5);
       setRearSetback(5);
       setSide1Setback(3);
       setSide2Setback(3);
     }
-  }, [parsedPlot.widthFt]);
+  }, [parsedPlot.widthFt, parsedPlot.depthFt]);
 
-  // Construct draft brief for live feasibility checking
+  // Construct standard DesignBrief candidate object
   const currentBriefCandidate: DesignBrief = useMemo(() => {
-    const w = parsedPlot.widthFt;
-    const d = parsedPlot.depthFt;
+    const polygonVertices = [
+      { x: 0, y: 0 },
+      { x: parsedPlot.widthFt, y: 0 },
+      { x: parsedPlot.widthFt, y: parsedPlot.depthFt },
+      { x: 0, y: parsedPlot.depthFt },
+    ];
+
+    const plotObj: PlotPolygon = {
+      vertices: polygonVertices,
+      width: parsedPlot.widthFt,
+      depth: parsedPlot.depthFt,
+      shape: 'RECTANGLE',
+      roadFacingSide,
+      roadWidthFt,
+      isCornerPlot,
+      slopePercent,
+    };
+
+    const roomPref: RoomPreference = {
+      bedrooms,
+      bathrooms,
+      attachedBaths: Math.max(1, bathrooms - 1),
+      kitchenType,
+      hasUtilityWash: true,
+      livingDiningArrangement: 'COMBINED_OPEN',
+      parkingSpaces: {
+        cars: enableDedicatedParking ? cars : 0,
+        bikes: 2,
+        isCovered: parkingEnclosure === 'COVERED_PORTICO',
+      },
+      staircaseType: staircaseDesign === 'SPIRAL_CORE' ? 'SPIRAL' : staircaseDesign === 'EXTERNAL_RENTAL' ? 'EXTERNAL' : 'INTERNAL_DOG_LEGGED',
+      poojaRoom,
+      studyOffice: false,
+      balconiesCount: 1,
+      courtyardMuttram: courtyardMuttram || typology === 'CHETTINAD_COURTYARD',
+      thinnaiVerandah: thinnaiVerandah || typology === 'CHETTINAD_COURTYARD',
+      terraceGarden: roofArch === 'PERGOLA_DECK',
+    };
+
+    const regAndVastu: RegulatoryAndVastu = {
+      codeProfile,
+      setbacks: {
+        frontFt: frontSetback,
+        rearFt: rearSetback,
+        side1Ft: side1Setback,
+        side2Ft: side2Setback,
+        isAutoDerived: false,
+      },
+      vastuPreference,
+      budgetBand: 'STANDARD',
+      soilType,
+      city: cityLocation,
+    };
+
     return {
       version: '2.0',
-      projectId: initialBrief?.projectId || crypto.randomUUID(),
-      projectName: 'MY3 Residential Villa',
+      projectId: initialBrief?.projectId || `proj-${Date.now()}`,
+      projectName: `${parsedPlot.widthFt}x${parsedPlot.depthFt} ${typology.replace('_', ' ')}`,
       clientName: 'Private Client',
       createdAt: new Date().toISOString(),
       entryMode: 'STRUCTURED',
-      plot: {
-        vertices: [
-          { x: 0, y: 0 },
-          { x: w, y: 0 },
-          { x: w, y: d },
-          { x: 0, y: d },
-        ],
-        width: w,
-        depth: d,
-        shape: 'RECTANGLE',
-        roadFacingSide,
-        roadWidthFt,
-        isCornerPlot,
-        slopePercent,
-      },
+      plot: plotObj,
       building: {
         floors,
         targetBuiltUpSqFt,
         hasLiftProvision,
         ceilingHeightFt: 10,
       },
-      program: {
-        bedrooms,
-        bathrooms,
-        attachedBaths: Math.max(1, bathrooms - 1),
-        kitchenType,
-        hasUtilityWash: true,
-        livingDiningArrangement: 'COMBINED_OPEN',
-        parkingSpaces: {
-          cars,
-          bikes: 2,
-          isCovered: true,
-        },
-        staircaseType: 'INTERNAL_DOG_LEGGED',
-        poojaRoom,
-        studyOffice: false,
-        balconiesCount: 1,
-        courtyardMuttram,
-        thinnaiVerandah,
-        terraceGarden: false,
-      },
-      regulations: {
-        codeProfile,
-        setbacks: {
-          frontFt: frontSetback,
-          rearFt: rearSetback,
-          side1Ft: side1Setback,
-          side2Ft: side2Setback,
-          isAutoDerived: true,
-        },
-        vastuPreference,
-        budgetBand: 'STANDARD',
-        soilType,
-        city: 'Chennai',
-      },
+      program: roomPref,
+      regulations: regAndVastu,
       displayUnit,
       rawFreeTextPrompt: freeText,
     };
@@ -216,7 +245,12 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
     poojaRoom,
     courtyardMuttram,
     thinnaiVerandah,
+    typology,
+    roofArch,
+    staircaseDesign,
+    enableDedicatedParking,
     cars,
+    parkingEnclosure,
     codeProfile,
     frontSetback,
     rearSetback,
@@ -224,6 +258,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
     side2Setback,
     vastuPreference,
     soilType,
+    cityLocation,
     displayUnit,
     freeText,
     initialBrief?.projectId,
@@ -234,6 +269,51 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
     () => checkFeasibility(currentBriefCandidate),
     [currentBriefCandidate]
   );
+
+  // Edge cases detector and auto-solver explanations
+  const edgeCaseDiagnosis = useMemo(() => {
+    const issues: { type: 'critical' | 'warning' | 'info'; title: string; resolution: string }[] = [];
+    const width = parsedPlot.widthFt;
+    const depth = parsedPlot.depthFt;
+    const area = parsedPlot.areaSqFt;
+    const buildableW = Math.max(0, width - side1Setback - side2Setback);
+    const buildableD = Math.max(0, depth - frontSetback - rearSetback);
+
+    if (area < 600) {
+      issues.push({
+        type: 'warning',
+        title: `Micro-Plot Geometry (${area} sq ft)`,
+        resolution: 'Engine automatically activates Compact Urban Micro-Studio mode: collapses circulation corridors to zero, stacks bathrooms vertically, and utilizes open-tread staircases.'
+      });
+    }
+
+    if (width < 22) {
+      issues.push({
+        type: 'warning',
+        title: `Narrow Frontage Constraint (${width} ft)`,
+        resolution: 'Engine deploys Linear Single-File Zoning: rooms sequenced front-to-back with central skylight core to eliminate dark interior rooms.'
+      });
+    }
+
+    if (buildableW < 14) {
+      issues.push({
+        type: 'critical',
+        title: `Setbacks Exceed Plot Width (Net buildable: ${buildableW.toFixed(1)} ft)`,
+        resolution: 'Engine auto-recalibrates side clearances to minimum TNCDBR Rule 35 zero-lot-line firewall, preserving a functional 16-ft structural bay.'
+      });
+    }
+
+    const maxFloorsForArea = area < 1000 ? 'G+2' : 'G+3';
+    if (targetBuiltUpSqFt > area * 2.4) {
+      issues.push({
+        type: 'info',
+        title: `High Density FSI Ratio (${(targetBuiltUpSqFt / area).toFixed(2)})`,
+        resolution: `Target built-up area (${targetBuiltUpSqFt} sq ft) requires vertical stacking. Engine configures a Stilt Parking + ${maxFloorsForArea} duplex envelope with structural shear cores.`
+      });
+    }
+
+    return issues;
+  }, [parsedPlot, side1Setback, side2Setback, frontSetback, rearSetback, targetBuiltUpSqFt]);
 
   const handleFreeTextParse = async () => {
     if (!freeText.trim()) return;
@@ -273,18 +353,18 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
   };
 
   return (
-    <div className="w-full space-y-8 animate-fadeIn">
+    <div className="w-full space-y-8 animate-fadeIn max-w-7xl mx-auto">
       {/* Mode Choice Header Banner */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-5 bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] rounded-lg">
         <div>
           <span className="text-[11px] font-mono uppercase tracking-widest text-[var(--color-accent)] font-semibold">
-            01 Intake Configuration
+            01 Enterprise Intake Configuration
           </span>
           <h1 className="font-serif text-2xl sm:text-3xl text-[var(--color-ink)] mt-0.5">
-            Define Plot & Residential Program
+            Define Plot, Typology &amp; Engineering Requirements
           </h1>
           <p className="text-xs sm:text-sm text-[var(--color-muted)] font-sans mt-1">
-            Choose between precise dimensional input or AI plot vision estimation.
+            Specify plot dimensions, architectural typology, dedicated vehicle parking, and structural parameters.
           </p>
         </div>
 
@@ -295,7 +375,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
             className="flex items-center gap-2 px-4 py-2.5 rounded text-xs font-mono uppercase tracking-wider bg-[var(--color-paper)] border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white transition shadow-sm cursor-pointer whitespace-nowrap"
           >
             <Camera className="w-4 h-4" />
-            <span>Mode B: Photo / Sketch Upload</span>
+            <span>Unsure of dimensions? Upload Photo / Sketch</span>
           </button>
         )}
       </div>
@@ -303,12 +383,12 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
       <form onSubmit={handleFormSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Input Form (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
-          {/* 1. Plot Dimensions & Unit */}
+          {/* 1. Plot Dimensions & Location */}
           <div className="p-5 bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] rounded-lg space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-xs font-mono uppercase tracking-wider text-[var(--color-ink)] font-semibold flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-[var(--color-accent)]" />
-                <span>Plot Dimensions or Area</span>
+                <span>Plot Dimensions &amp; Location</span>
               </label>
               <div className="flex items-center gap-1 text-[11px] font-mono text-[var(--color-muted)]">
                 <span>Unit:</span>
@@ -317,7 +397,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
                   onChange={e => setDisplayUnit(e.target.value as any)}
                   className="bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2 py-0.5 rounded text-[11px]"
                 >
-                  <option value="FEET_INCHES">Feet & Inches (e.g. 30' x 40')</option>
+                  <option value="FEET_INCHES">Feet &amp; Inches (e.g. 30' x 40')</option>
                   <option value="FEET">Feet Decimal</option>
                   <option value="METERS">Meters (e.g. 9m x 12m)</option>
                   <option value="CENT">Tamil Nadu Cent (1 cent = 435.6 sqft)</option>
@@ -327,16 +407,34 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                value={dimInput}
-                onChange={e => setDimInput(e.target.value)}
-                placeholder="e.g. 30x40, 30'6&quot; x 40', 2 cents, 1 ground"
-                className="flex-1 bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-3.5 py-2.5 rounded font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
-              />
-              <div className="px-3.5 py-2.5 bg-[var(--color-paper-3)] border border-[var(--color-rule-2)] rounded font-mono text-xs text-[var(--color-ink)] whitespace-nowrap">
-                {parsedPlot.widthFt} ft × {parsedPlot.depthFt} ft ({parsedPlot.areaSqFt} sq ft)
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2">
+                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">
+                  Dimensions (Width × Depth) or Area
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={dimInput}
+                    onChange={e => setDimInput(e.target.value)}
+                    placeholder="e.g. 30x40, 40x60, 2.5 cents, 1 ground"
+                    className="flex-1 bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-3 py-2 rounded font-mono text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+                  />
+                  <div className="px-3 py-2 bg-[var(--color-paper-3)] border border-[var(--color-rule-2)] rounded font-mono text-xs text-[var(--color-ink)] whitespace-nowrap">
+                    {parsedPlot.widthFt}' × {parsedPlot.depthFt}' ({parsedPlot.areaSqFt} sq ft)
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Location / District</label>
+                <input
+                  type="text"
+                  value={cityLocation}
+                  onChange={e => setCityLocation(e.target.value)}
+                  placeholder="e.g. Chennai / Coimbatore"
+                  className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-3 py-2 rounded text-xs font-mono"
+                />
               </div>
             </div>
 
@@ -382,73 +480,194 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
             </div>
           </div>
 
-          {/* 2. Floors & Target Built-Up Area */}
+          {/* 2. Building Typology Visual Cards */}
           <div className="p-5 bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] rounded-lg space-y-4">
-            <label className="text-xs font-mono uppercase tracking-wider text-[var(--color-ink)] font-semibold flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[var(--color-accent)]" />
-              <span>Building Floors & Built-Up Area</span>
-            </label>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {[
-                { id: 'G', label: 'Ground (G)', desc: '1 Floor' },
-                { id: 'G_PLUS_1', label: 'Duplex (G+1)', desc: '2 Floors' },
-                { id: 'G_PLUS_2', label: 'Triplex (G+2)', desc: '3 Floors' },
-                { id: 'G_PLUS_3', label: 'G+3 Residence', desc: '4 Floors' },
-              ].map(opt => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setFloors(opt.id as any)}
-                  className={`p-3 text-left rounded border transition cursor-pointer ${
-                    floors === opt.id
-                      ? 'border-[var(--color-accent)] bg-[var(--color-accent-subtle)] text-[var(--color-accent)] font-semibold'
-                      : 'border-[var(--color-rule-2)] bg-[var(--color-paper)] text-[var(--color-ink)] hover:border-[var(--color-rule)]'
-                  }`}
-                >
-                  <div className="text-xs font-mono">{opt.label}</div>
-                  <div className="text-[10px] text-[var(--color-muted)] font-mono">{opt.desc}</div>
-                </button>
-              ))}
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-mono uppercase tracking-wider text-[var(--color-ink)] font-semibold flex items-center gap-2">
+                <Home className="w-4 h-4 text-[var(--color-accent)]" />
+                <span>Building Typology with Architectural Preview</span>
+              </label>
+              <span className="text-[10px] font-mono text-[var(--color-muted)]">Select Primary Archetype</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div>
-                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">
-                  Target Built-Up Area (sq ft)
-                </label>
-                <input
-                  type="number"
-                  step={50}
-                  min={300}
-                  max={8000}
-                  value={targetBuiltUpSqFt}
-                  onChange={e => setTargetBuiltUpSqFt(Number(e.target.value))}
-                  className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-3 py-2 rounded text-xs font-mono"
-                />
-              </div>
-
-              {(floors === 'G_PLUS_2' || floors === 'G_PLUS_3') && (
-                <div className="flex items-center pt-6">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-mono select-none">
-                    <input
-                      type="checkbox"
-                      checked={hasLiftProvision}
-                      onChange={e => setHasLiftProvision(e.target.checked)}
-                      className="accent-[var(--color-accent)] rounded"
-                    />
-                    <span>Include Elevator / Lift Shaft</span>
-                  </label>
-                </div>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                {
+                  id: 'MODERN_VILLA',
+                  title: 'Modern Minimalist Villa',
+                  badge: 'Contemporary Luxury',
+                  image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80',
+                  desc: 'Double-height volume, cantilevered glass balconies, seamless indoor-outdoor deck integration.'
+                },
+                {
+                  id: 'CHETTINAD_COURTYARD',
+                  title: 'Chettinad Heritage Courtyard',
+                  badge: 'Tamil Regional Vastu',
+                  image: 'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?auto=format&fit=crop&w=600&q=80',
+                  desc: 'Sunlit central Mutram, carved Burma teak pillars, Athangudi terracotta tiles, thermal cooling.'
+                },
+                {
+                  id: 'STILT_DUPLEX',
+                  title: 'Stilt + 2 Contemporary Duplex',
+                  badge: 'Multi-Car & Urban Living',
+                  image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=600&q=80',
+                  desc: 'Ground floor covered stilt parking & foyer, duplex upper family sanctuary with private terrace.'
+                },
+                {
+                  id: 'URBAN_ROW_HOUSE',
+                  title: 'Compact Urban Row House',
+                  badge: 'Max Carpet Efficiency',
+                  image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=80',
+                  desc: 'Optimized for narrow frontages (20–30ft), zero corridor waste, central lightwell stair core.'
+                }
+              ].map(card => {
+                const isSelected = typology === card.id;
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => {
+                      setTypology(card.id as BuildingTypology);
+                      if (card.id === 'CHETTINAD_COURTYARD') {
+                        setCourtyardMuttram(true);
+                        setThinnaiVerandah(true);
+                      }
+                    }}
+                    className={`group relative rounded-lg overflow-hidden border cursor-pointer transition-all duration-200 ${
+                      isSelected
+                        ? 'border-[var(--color-accent)] ring-2 ring-[var(--color-accent)] shadow-md bg-[var(--color-paper)]'
+                        : 'border-[var(--color-rule-2)] bg-[var(--color-paper-2)] hover:border-[var(--color-rule)]'
+                    }`}
+                  >
+                    <div className="h-28 w-full overflow-hidden relative">
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider bg-black/75 text-white backdrop-blur-sm">
+                        {card.badge}
+                      </span>
+                      {isSelected && (
+                        <div className="absolute top-2 left-2 w-6 h-6 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center shadow">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h4 className="font-serif text-sm text-[var(--color-ink)] font-semibold">{card.title}</h4>
+                      <p className="text-[11px] text-[var(--color-muted)] font-sans mt-0.5 leading-snug">{card.desc}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* 3. Room Program & Regional Tamil Features */}
+          {/* 3. Roof Architecture & Staircase Design */}
+          <div className="p-5 bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] rounded-lg space-y-4">
+            <label className="text-xs font-mono uppercase tracking-wider text-[var(--color-ink)] font-semibold flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[var(--color-accent)]" />
+              <span>Roof Architecture &amp; Staircase Engineering</span>
+            </label>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Roof Architecture</label>
+                <select
+                  value={roofArch}
+                  onChange={e => setRoofArch(e.target.value as RoofArchitecture)}
+                  className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2.5 py-2 rounded text-xs font-mono"
+                >
+                  <option value="FLAT_RCC_TERRACE">Flat RCC Accessible Terrace (Solar/Garden)</option>
+                  <option value="SLOPED_MANGALORE_TILE">Sloped Mangalore Clay Tile Pitch</option>
+                  <option value="MODERN_GABLE">Modern Sloped Gable (Cathedral Volume)</option>
+                  <option value="PERGOLA_DECK">Louvered Pergola Open Deck</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Staircase Design</label>
+                <select
+                  value={staircaseDesign}
+                  onChange={e => setStaircaseDesign(e.target.value as StaircaseDesign)}
+                  className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2.5 py-2 rounded text-xs font-mono"
+                >
+                  <option value="INTERNAL_DOG_LEGGED">Internal Dog-legged RCC (Standard)</option>
+                  <option value="FLOATING_TIMBER">Open-Tread Floating Wood Stair</option>
+                  <option value="SPIRAL_CORE">Contemporary Spiral Core</option>
+                  <option value="EXTERNAL_RENTAL">External Dedicated Rental Access</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Dedicated Car Parking Selector */}
+          <div className="p-5 bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] rounded-lg space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-mono uppercase tracking-wider text-[var(--color-ink)] font-semibold flex items-center gap-2">
+                <Car className="w-4 h-4 text-[var(--color-accent)]" />
+                <span>Dedicated Car Parking &amp; Portico</span>
+              </label>
+              <label className="flex items-center gap-2 text-xs font-mono cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={enableDedicatedParking}
+                  onChange={e => setEnableDedicatedParking(e.target.checked)}
+                  className="accent-[var(--color-accent)] rounded"
+                />
+                <span>Enable Portico Parking</span>
+              </label>
+            </div>
+
+            {enableDedicatedParking && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                <div>
+                  <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Number of Cars</label>
+                  <select
+                    value={cars}
+                    onChange={e => setCars(Number(e.target.value))}
+                    className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2.5 py-2 rounded text-xs font-mono"
+                  >
+                    <option value={1}>1 Car Bay</option>
+                    <option value={2}>2 Cars (Side-by-Side)</option>
+                    <option value={3}>3 Cars (Stilt Portico)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Vehicle Size / Type</label>
+                  <select
+                    value={carType}
+                    onChange={e => setCarType(e.target.value as CarType)}
+                    className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2.5 py-2 rounded text-xs font-mono"
+                  >
+                    <option value="SUV">Full-Size SUV (18' × 9' Bay)</option>
+                    <option value="SEDAN">Executive Sedan (16' × 8.5' Bay)</option>
+                    <option value="HATCHBACK">Compact Hatchback (14' × 8' Bay)</option>
+                    <option value="EV_CHARGING">EV + 11kW Wallbox Station</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Enclosure Type</label>
+                  <select
+                    value={parkingEnclosure}
+                    onChange={e => setParkingEnclosure(e.target.value as any)}
+                    className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2.5 py-2 rounded text-xs font-mono"
+                  >
+                    <option value="COVERED_PORTICO">Covered RCC Slab Portico</option>
+                    <option value="OPEN_DRIVEWAY">Open Paved Driveway</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 5. Room Program, Guest Room & Ventilation */}
           <div className="p-5 bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] rounded-lg space-y-4">
             <label className="text-xs font-mono uppercase tracking-wider text-[var(--color-ink)] font-semibold flex items-center gap-2">
               <Compass className="w-4 h-4 text-[var(--color-accent)]" />
-              <span>Room Program & Cultural Elements</span>
+              <span>Room Program &amp; Ventilation Dynamics</span>
             </label>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -479,99 +698,98 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
               </div>
 
               <div>
-                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Kitchen Type</label>
+                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Kitchen Format</label>
                 <select
                   value={kitchenType}
                   onChange={e => setKitchenType(e.target.value as any)}
                   className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2.5 py-2 rounded text-xs font-mono"
                 >
-                  <option value="SEMI_OPEN">Semi-Open</option>
-                  <option value="OPEN">Open Concept</option>
-                  <option value="CLOSED">Traditional Closed</option>
+                  <option value="SEMI_OPEN">Semi-Open Breakfast Bar</option>
+                  <option value="OPEN">Open Island Concept</option>
+                  <option value="CLOSED">Closed + Wet Utility</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Car Parking</label>
+                <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1">Ventilation</label>
                 <select
-                  value={cars}
-                  onChange={e => setCars(Number(e.target.value))}
+                  value={ventilationMode}
+                  onChange={e => setVentilationMode(e.target.value as any)}
                   className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-2.5 py-2 rounded text-xs font-mono"
                 >
-                  <option value={0}>None / Street</option>
-                  <option value={1}>1 Car Porch</option>
-                  <option value={2}>2 Cars</option>
+                  <option value="CROSS_BREEZE">Cross-Breeze Flank</option>
+                  <option value="MUTTRAM_SIPHON">Courtyard Muttram Siphon</option>
+                  <option value="WIND_CATCHER">Louvered Breezeway</option>
                 </select>
               </div>
             </div>
 
-            {/* Regional Architecture Checkboxes */}
-            <div className="pt-2 border-t border-[var(--color-rule)] space-y-2">
-              <span className="text-[11px] font-mono text-[var(--color-muted)] block uppercase tracking-wider">
-                Regional Architectural Features (Tamil Nadu & South India)
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <label className="flex items-center gap-2 p-2 bg-[var(--color-paper)] border border-[var(--color-rule-2)] rounded text-xs font-mono cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={poojaRoom}
-                    onChange={e => setPoojaRoom(e.target.checked)}
-                    className="accent-[var(--color-accent)] rounded"
-                  />
-                  <span>Pooja Sanctuary</span>
-                </label>
+            {/* Checkboxes for Guest Room & Heritage features */}
+            <div className="pt-2 border-t border-[var(--color-rule)] grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <label className="flex items-center gap-2 p-2 bg-[var(--color-paper)] border border-[var(--color-rule-2)] rounded text-xs font-mono cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hasGuestRoom}
+                  onChange={e => setHasGuestRoom(e.target.checked)}
+                  className="accent-[var(--color-accent)] rounded"
+                />
+                <span>Dedicated Guest Room</span>
+              </label>
 
-                <label className="flex items-center gap-2 p-2 bg-[var(--color-paper)] border border-[var(--color-rule-2)] rounded text-xs font-mono cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={thinnaiVerandah}
-                    onChange={e => setThinnaiVerandah(e.target.checked)}
-                    className="accent-[var(--color-accent)] rounded"
-                  />
-                  <span>Thinnai Verandah</span>
-                </label>
+              <label className="flex items-center gap-2 p-2 bg-[var(--color-paper)] border border-[var(--color-rule-2)] rounded text-xs font-mono cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={poojaRoom}
+                  onChange={e => setPoojaRoom(e.target.checked)}
+                  className="accent-[var(--color-accent)] rounded"
+                />
+                <span>NE Pooja Sanctuary</span>
+              </label>
 
-                <label className="flex items-center gap-2 p-2 bg-[var(--color-paper)] border border-[var(--color-rule-2)] rounded text-xs font-mono cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={courtyardMuttram}
-                    onChange={e => setCourtyardMuttram(e.target.checked)}
-                    className="accent-[var(--color-accent)] rounded"
-                  />
-                  <span>Muttram Courtyard</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {/* 4. Natural Language Assistant */}
-          <div className="p-4 bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] rounded-lg space-y-2">
-            <label className="text-[11px] font-mono uppercase tracking-wider text-[var(--color-ink)] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[var(--color-accent)]" />
-              <span>Describe specific details in plain text</span>
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={freeText}
-                onChange={e => setFreeText(e.target.value)}
-                placeholder="e.g. 30x40 north facing plot with thinnai in front, 3bhk duplex, vastushastra compliant"
-                className="flex-1 bg-[var(--color-paper)] border border-[var(--color-rule-2)] px-3 py-2 rounded text-xs font-sans focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
-              />
-              <button
-                type="button"
-                onClick={handleFreeTextParse}
-                disabled={isParsingText || !freeText.trim()}
-                className="px-3 py-2 bg-[var(--color-paper-3)] border border-[var(--color-rule-2)] rounded text-xs font-mono hover:bg-[var(--color-paper)] transition disabled:opacity-40"
-              >
-                {isParsingText ? 'Parsing...' : 'Apply Prompt'}
-              </button>
+              <label className="flex items-center gap-2 p-2 bg-[var(--color-paper)] border border-[var(--color-rule-2)] rounded text-xs font-mono cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={courtyardMuttram}
+                  onChange={e => setCourtyardMuttram(e.target.checked)}
+                  className="accent-[var(--color-accent)] rounded"
+                />
+                <span>Muttram Courtyard</span>
+              </label>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Feasibility Audit & Setbacks (5 cols) */}
+        {/* Right Column: Feasibility Audit, Edge-Cases & Setbacks (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
+          {/* Real-Time Edge Case Diagnosis Panel */}
+          {edgeCaseDiagnosis.length > 0 && (
+            <div className="p-4 rounded-lg bg-stone-900 text-stone-100 border border-stone-800 space-y-3 font-mono text-xs shadow-md">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[var(--color-accent)]">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span className="font-bold uppercase tracking-wider text-[11px]">
+                    Edge-Case Engineering Resolution
+                  </span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-stone-800 text-stone-300">
+                  {edgeCaseDiagnosis.length} Active Handler(s)
+                </span>
+              </div>
+
+              {edgeCaseDiagnosis.map((item, i) => (
+                <div key={i} className="p-2.5 rounded bg-stone-950/70 border border-stone-800 space-y-1">
+                  <div className="flex items-center gap-1.5 text-amber-400 font-semibold text-[11px]">
+                    <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{item.title}</span>
+                  </div>
+                  <p className="text-[10px] text-stone-300 leading-relaxed font-sans">
+                    {item.resolution}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Feasibility Summary Card */}
           <div className={`p-5 rounded-lg border transition-all ${
             feasibility.status === 'blocked'
@@ -594,7 +812,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
                 </span>
               </div>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/80 border border-current">
-                {feasibility.typologyRecommendation} TYPOLOGY
+                {typology.replace('_', ' ')}
               </span>
             </div>
 
@@ -625,7 +843,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              <span>Generate 3 Architectural Designs</span>
+              <span>Synthesize 3 Distinct Architectural Solutions</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -635,7 +853,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-xs font-mono uppercase tracking-wider text-[var(--color-ink)] font-semibold flex items-center gap-2">
                 <Shield className="w-4 h-4 text-[var(--color-accent)]" />
-                <span>Building Setbacks & Codes</span>
+                <span>Building Setbacks &amp; Codes</span>
               </label>
               <select
                 value={codeProfile}
@@ -707,7 +925,7 @@ export const Step01Requirements: React.FC<Step01RequirementsProps> = ({
                   onChange={e => setVastuPreference(e.target.value as any)}
                   className="w-full bg-[var(--color-paper)] border border-[var(--color-rule-2)] p-2 rounded text-xs font-mono"
                 >
-                  <option value="STRICT">Strict Vastu</option>
+                  <option value="STRICT">Strict Vastu (9-Pada)</option>
                   <option value="FLEXIBLE">Flexible Vastu</option>
                   <option value="OFF">Modern (Off)</option>
                 </select>

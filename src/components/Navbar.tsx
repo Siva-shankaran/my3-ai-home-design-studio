@@ -38,6 +38,8 @@ interface NavbarProps {
   onOpenConceptGenerator?: () => void;
   // Full-Screen Editorial Menu
   onOpenMenu?: () => void;
+  // Auth Modal
+  onOpenAuth?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -61,7 +63,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleSideBySide,
   onOpenMaketGenerator,
   onOpenConceptGenerator,
-  onOpenMenu
+  onOpenMenu,
+  onOpenAuth
 }) => {
   const [showLanguagePopover, setShowLanguagePopover] = useState<boolean>(false);
   const [isNavVisible, setIsNavVisible] = useState<boolean>(true);
@@ -357,7 +360,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
 
             {/* User Profile Tag */}
-            <div className="flex items-center space-x-1.5 bg-[var(--color-paper-3)] border border-[var(--color-rule)] px-2 py-1 rounded-[var(--radius-card)]">
+            <div 
+              onClick={onOpenAuth}
+              className="flex items-center space-x-1.5 bg-[var(--color-paper-3)] hover:bg-[var(--color-paper)] border border-[var(--color-rule)] px-2 py-1 rounded-[var(--radius-card)] cursor-pointer transition select-none"
+              title="Manage Account / Switch Architectural Role"
+            >
               <div className="w-5 h-5 rounded-[var(--radius-pill)] bg-[var(--color-dark)] text-white flex items-center justify-center font-bold text-[10px]">
                 {user.name.charAt(0)}
               </div>

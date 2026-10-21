@@ -9,6 +9,7 @@ export interface AuthSession {
 }
 
 const STORAGE_KEY = 'my3_auth_session';
+const AUTH_FLAG_KEY = 'my3_is_authenticated';
 
 const DEFAULT_USER: UserProfile = {
   id: 'usr-enterprise-1',
@@ -22,6 +23,30 @@ const DEFAULT_USER: UserProfile = {
 };
 
 export const authService = {
+  isExplicitlyAuthenticated(): boolean {
+    try {
+      return localStorage.getItem(AUTH_FLAG_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  },
+
+  setExplicitlyAuthenticated(val: boolean): void {
+    try {
+      localStorage.setItem(AUTH_FLAG_KEY, String(val));
+    } catch (e) {
+      console.warn('Failed to set auth flag in localStorage:', e);
+    }
+  },
+
+  logout(): void {
+    try {
+      localStorage.removeItem(AUTH_FLAG_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear session in localStorage:', e);
+    }
+  },
   getCurrentSession(): AuthSession {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);

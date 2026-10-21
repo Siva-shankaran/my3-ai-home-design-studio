@@ -26,6 +26,7 @@ import { MenuOverlay } from './components/editorial/MenuOverlay';
 import { BottomDock } from './components/editorial/BottomDock';
 import { StudioStepTracker } from './components/editorial/StudioStepTracker';
 import { WizardController } from './components/wizard/WizardController';
+import { AuthModal } from './components/auth/AuthModal';
 import { useLenisSmoothScroll } from './animations/useLenisSmoothScroll';
 import type { Language } from './services/i18n';
 import { 
@@ -90,6 +91,7 @@ export const App: React.FC = () => {
   const [isConceptModalOpen, setIsConceptModalOpen] = useState<boolean>(false);
   const [isStatsDrawerOpen, setIsStatsDrawerOpen] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
   // Initialize smooth scrolling with Lenis on landing page
   useLenisSmoothScroll(currentView === 'landing');
@@ -209,6 +211,7 @@ export const App: React.FC = () => {
         onOpenMaketGenerator={() => setIsMaketModalOpen(true)}
         onOpenConceptGenerator={() => setIsConceptModalOpen(true)}
         onOpenMenu={() => setIsMenuOpen(true)}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
         language={language}
         onToggleLanguage={() => setLanguage(l => l === 'en' ? 'ta' : 'en')}
         cadStyleMode={cadStyleMode}
@@ -222,9 +225,21 @@ export const App: React.FC = () => {
         {currentView === 'landing' && (
           <div className="w-full h-full overflow-y-auto overflow-x-hidden">
             <LandingPage
-              onGetStarted={() => navigateTo('wizard')}
+              onGetStarted={() => {
+                if (!authService.isExplicitlyAuthenticated()) {
+                  setIsAuthModalOpen(true);
+                } else {
+                  navigateTo('wizard');
+                }
+              }}
               onExploreDemo={() => navigateTo('editor2d')}
-              onOpenConcepts={() => navigateTo('wizard')}
+              onOpenConcepts={() => {
+                if (!authService.isExplicitlyAuthenticated()) {
+                  setIsAuthModalOpen(true);
+                } else {
+                  navigateTo('wizard');
+                }
+              }}
             />
           </div>
         )}
@@ -508,6 +523,17 @@ export const App: React.FC = () => {
         }}
         onFocusRoom={(roomId) => {
           console.log('Focusing room:', roomId);
+        }}
+      />
+
+      {/* Enterprise Authentication Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(newUser) => {
+          setUser(newUser);
+          authService.setExplicitlyAuthenticated(true);
+          navigateTo('wizard');
         }}
       />
     </div>

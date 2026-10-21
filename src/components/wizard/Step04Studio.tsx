@@ -4,6 +4,8 @@ import { projectDesignToLegacyProject } from '../../engine/solver/projectAdapter
 import { HistoryManager } from '../studio/HistoryManager.ts';
 import { CADCanvas2D } from '../CADCanvas2D.tsx';
 import { Studio3D } from '../Studio3D.tsx';
+import { MinuteDesignPanel, MinuteDesignConfig } from '../studio/MinuteDesignPanel.tsx';
+import { BeforeAfterVisualizer } from '../studio/BeforeAfterVisualizer.tsx';
 import { 
   Layers, 
   Box, 
@@ -16,7 +18,10 @@ import {
   Sun,
   Eye,
   Sliders,
-  Maximize2
+  Maximize2,
+  Palette,
+  SplitSquareVertical,
+  Hammer
 } from 'lucide-react';
 
 interface Step04StudioProps {
@@ -25,15 +30,25 @@ interface Step04StudioProps {
   onProceedToConstruction: () => void;
 }
 
+export type StudioTab = '2d' | '3d' | 'finishes' | 'visualizer';
+
 export const Step04Studio: React.FC<Step04StudioProps> = ({
   project,
   onProjectChange,
   onProceedToConstruction,
 }) => {
-  const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
+  const [activeTab, setActiveTab] = useState<StudioTab>('2d');
   const [activeFloorIndex, setActiveFloorIndex] = useState<number>(0);
   const [selectedTool, setSelectedTool] = useState<'select' | 'room' | 'wall' | 'door' | 'window' | 'measure' | 'furniture'>('select');
   const [cadStyle, setCadStyle] = useState<'presentation' | 'cad'>('cad');
+
+  // Minute finishes configuration state
+  const [minuteConfig, setMinuteConfig] = useState<MinuteDesignConfig>({
+    flooringId: 'athangudi',
+    sofaId: 'boucle_sectional',
+    sanitaryId: 'geberit_grohe',
+    carId: 'suv_fortuner'
+  });
 
   // Command History Manager for Undo/Redo
   const history = useMemo(() => new HistoryManager(), []);
@@ -62,7 +77,6 @@ export const Step04Studio: React.FC<Step04StudioProps> = ({
 
   const handleLegacyUpdate = useCallback((updated: any) => {
     history.push(project);
-    // In our simplified adapter, update the active project timestamp
     const clone = { ...project, updatedAt: new Date().toISOString() };
     onProjectChange(clone);
   }, [project, history, onProjectChange]);
@@ -70,35 +84,62 @@ export const Step04Studio: React.FC<Step04StudioProps> = ({
   const activeFloor = project.floors[activeFloorIndex] || project.floors[0];
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-100px)] w-full overflow-hidden bg-[var(--color-paper)]">
+    <div className="flex-1 flex flex-col h-[calc(100vh-100px)] w-full overflow-hidden bg-[var(--color-paper)] font-sans">
       {/* Studio Top Control Strip */}
-      <div className="hairline-b bg-[var(--color-paper-2)] px-4 py-2 flex items-center justify-between text-xs font-mono select-none z-20">
-        {/* Left: View Switcher (2D CAD vs 3D) & Floor Select */}
-        <div className="flex items-center gap-3">
+      <div className="hairline-b bg-[var(--color-paper-2)] px-4 py-2 flex flex-wrap items-center justify-between text-xs font-mono select-none z-20 gap-2">
+        {/* Left: View Switcher (2D CAD / 3D BIM / Finishes / Before-After Visualizer) */}
+        <div className="flex items-center gap-2">
           <div className="flex bg-[var(--color-paper)] border border-[var(--color-rule-2)] p-0.5 rounded">
             <button
               type="button"
-              onClick={() => setViewMode('2d')}
+              onClick={() => setActiveTab('2d')}
               className={`flex items-center gap-1.5 px-3 py-1 rounded transition cursor-pointer ${
-                viewMode === '2d'
-                  ? 'bg-[var(--color-accent)] text-white font-semibold'
+                activeTab === '2d'
+                  ? 'bg-[var(--color-accent)] text-white font-semibold shadow-xs'
                   : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
               <span>2D CAD</span>
             </button>
+
             <button
               type="button"
-              onClick={() => setViewMode('3d')}
+              onClick={() => setActiveTab('3d')}
               className={`flex items-center gap-1.5 px-3 py-1 rounded transition cursor-pointer ${
-                viewMode === '3d'
-                  ? 'bg-[var(--color-accent)] text-white font-semibold'
+                activeTab === '3d'
+                  ? 'bg-[var(--color-accent)] text-white font-semibold shadow-xs'
                   : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
               }`}
             >
               <Box className="w-3.5 h-3.5" />
-              <span>3D Dollhouse</span>
+              <span>3D Massing</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('finishes')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded transition cursor-pointer ${
+                activeTab === 'finishes'
+                  ? 'bg-[var(--color-accent)] text-white font-semibold shadow-xs'
+                  : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
+              }`}
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span>Minute Finishes</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('visualizer')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded transition cursor-pointer ${
+                activeTab === 'visualizer'
+                  ? 'bg-[var(--color-accent)] text-white font-semibold shadow-xs'
+                  : 'text-[var(--color-muted)] hover:text-[var(--color-ink)]'
+              }`}
+            >
+              <SplitSquareVertical className="w-3.5 h-3.5" />
+              <span>Split Render</span>
             </button>
           </div>
 
@@ -122,7 +163,7 @@ export const Step04Studio: React.FC<Step04StudioProps> = ({
         </div>
 
         {/* Center: Live Validation Chips */}
-        <div className="hidden lg:flex items-center gap-2 text-[11px]">
+        <div className="hidden xl:flex items-center gap-2 text-[11px]">
           <div className="flex items-center gap-1 px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
             <ShieldCheck className="w-3 h-3 text-emerald-600" />
             <span>NBC 2016 Compliant</span>
@@ -165,32 +206,70 @@ export const Step04Studio: React.FC<Step04StudioProps> = ({
           <button
             type="button"
             onClick={onProceedToConstruction}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-[var(--color-accent)] text-white font-bold hover:opacity-90 transition cursor-pointer shadow-sm text-xs uppercase tracking-wider ml-2"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-[var(--color-accent)] text-white font-bold hover:opacity-90 transition cursor-pointer shadow-sm text-xs uppercase tracking-wider ml-1"
           >
-            <span>Proceed to Construction</span>
+            <Hammer className="w-3.5 h-3.5" />
+            <span>Proceed to Civil &amp; Steel</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Main Studio Viewport (2D Canvas or 3D Scene) */}
-      <div className="flex-1 relative w-full h-full overflow-hidden">
-        {viewMode === '2d' ? (
-          <CADCanvas2D
-            project={legacyProject}
-            onUpdateProject={handleLegacyUpdate}
-            selectedTool={selectedTool}
-            unit="imperial"
-            activeFloor={activeFloorIndex + 1}
-            cadStyleMode={cadStyle}
-            onToggleCadStyle={setCadStyle}
-          />
-        ) : (
-          <Studio3D
-            project={legacyProject}
-            onUpdateProject={handleLegacyUpdate}
-            activeFloor={activeFloorIndex + 1}
-          />
+      {/* Main Studio Viewport */}
+      <div className="flex-1 relative w-full h-full overflow-hidden flex">
+        {activeTab === '2d' && (
+          <div className="w-full h-full">
+            <CADCanvas2D
+              project={legacyProject}
+              onUpdateProject={handleLegacyUpdate}
+              selectedTool={selectedTool}
+              unit="imperial"
+              activeFloor={activeFloorIndex + 1}
+              cadStyleMode={cadStyle}
+              onToggleCadStyle={setCadStyle}
+            />
+          </div>
+        )}
+
+        {activeTab === '3d' && (
+          <div className="w-full h-full">
+            <Studio3D
+              project={legacyProject}
+              onUpdateProject={handleLegacyUpdate}
+              activeFloor={activeFloorIndex + 1}
+            />
+          </div>
+        )}
+
+        {activeTab === 'finishes' && (
+          <div className="w-full h-full flex flex-col md:flex-row overflow-hidden">
+            {/* Left: 2D plan reference */}
+            <div className="flex-1 h-full border-r border-[var(--color-rule-2)] relative">
+              <CADCanvas2D
+                project={legacyProject}
+                onUpdateProject={handleLegacyUpdate}
+                selectedTool="select"
+                unit="imperial"
+                activeFloor={activeFloorIndex + 1}
+                cadStyleMode="presentation"
+              />
+            </div>
+            {/* Right: Minute Design Picker */}
+            <div className="w-full md:w-96 h-full flex-shrink-0">
+              <MinuteDesignPanel
+                config={minuteConfig}
+                onChange={updates => setMinuteConfig(prev => ({ ...prev, ...updates }))}
+              />
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'visualizer' && (
+          <div className="w-full h-full">
+            <BeforeAfterVisualizer
+              spaceTitle={`${project.conceptTitle} • ${activeFloor.floorName}`}
+            />
+          </div>
         )}
       </div>
     </div>
