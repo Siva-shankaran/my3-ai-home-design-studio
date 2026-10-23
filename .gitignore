@@ -16,6 +16,8 @@ dist-ssr
 .env
 .env.*
 !.env.example
+data/
+data/*
 
 # Confidential Reference Materials (Never committed)
 reference/

@@ -43,8 +43,77 @@ export const authService = {
     try {
       localStorage.removeItem(AUTH_FLAG_KEY);
       localStorage.removeItem(STORAGE_KEY);
+      fetch('/api/logout', { method: 'POST' }).catch(() => {});
     } catch (e) {
       console.warn('Failed to clear session in localStorage:', e);
+    }
+  },
+
+  async loginWithServer(email: string, password: string): Promise<UserProfile> {
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Login failed');
+      }
+      const data = await res.json();
+      const userProfile: UserProfile = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: data.user.role || 'architect',
+        credits: 1000,
+        plan: 'Studio',
+        companyName: data.user.companyName || 'MY3 Design Studio',
+        licenseNumber: 'AIA-984210 / PE-CA-58219'
+      };
+      this.saveSession({
+        user: userProfile,
+        token: data.token || `jwt_${Date.now()}`,
+        expiresAt: Date.now() + 7 * 86400 * 1000
+      });
+      this.setExplicitlyAuthenticated(true);
+      return userProfile;
+    } catch (err) {
+      throw err;
+    }
+  },
+
+  async signupWithServer(email: string, password: string, name: string, role: UserRole, companyName?: string): Promise<UserProfile> {
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name, role, companyName })
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Signup failed');
+      }
+      const data = await res.json();
+      const userProfile: UserProfile = {
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        role: (data.user.role as UserRole) || role,
+        credits: 1000,
+        plan: 'Studio',
+        companyName: companyName || 'MY3 Design Studio',
+        licenseNumber: role === 'architect' ? 'COA/2026/78219' : 'PE-TN-48210'
+      };
+      this.saveSession({
+        user: userProfile,
+        token: data.token || `jwt_${Date.now()}`,
+        expiresAt: Date.now() + 7 * 86400 * 1000
+      });
+      this.setExplicitlyAuthenticated(true);
+      return userProfile;
+    } catch (err) {
+      throw err;
     }
   },
   getCurrentSession(): AuthSession {

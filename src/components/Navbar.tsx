@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { 
   Compass, Box, Layers, Download, Sparkles, 
   Home, Grid, User, ChevronDown, Ruler, Award,
-  Globe, Palette, Columns2, Square, HelpCircle
+  Globe, Palette, Columns2, Square, HelpCircle, LogOut
 } from 'lucide-react';
 import type { UserProfile, Project } from '../types';
 import { type Language, translations } from '../services/i18n';
@@ -40,6 +40,8 @@ interface NavbarProps {
   onOpenMenu?: () => void;
   // Auth Modal
   onOpenAuth?: () => void;
+  // Logout Download Modal
+  onOpenLogout?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -64,7 +66,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenMaketGenerator,
   onOpenConceptGenerator,
   onOpenMenu,
-  onOpenAuth
+  onOpenAuth,
+  onOpenLogout
 }) => {
   const [showLanguagePopover, setShowLanguagePopover] = useState<boolean>(false);
   const [isNavVisible, setIsNavVisible] = useState<boolean>(true);
@@ -370,6 +373,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               <span className="hidden sm:inline text-xs text-[var(--color-ink)] font-mono">{user.name}</span>
             </div>
+
+            {/* Logout Button with Download Backup Dialog */}
+            {onOpenLogout && (
+              <button
+                type="button"
+                onClick={onOpenLogout}
+                className="p-1 rounded-[var(--radius-card)] text-[var(--color-muted)] hover:text-red-600 transition cursor-pointer"
+                title="Log Out (with backup archive dialog)"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            )}
           </>
         )}
       </div>

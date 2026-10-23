@@ -201,4 +201,22 @@ export interface ProjectDesign {
   boqSummary: BOQSummary;
   verificationReport: VerificationReport;
   threeSceneData?: any;
+  // Hearth interior design state & seeding
+  seed?: number;
+  sofa?: '2-seater' | '3-seater' | 'L-shape';
+  sofaC?: string;
+  bed?: 'Single' | 'Queen' | 'King';
+  bedC?: string;
+  rugC?: string;
+  curC?: string;
+  wall?: string;
+  flr?: 'oak' | 'tile' | 'marble' | 'granite' | 'concrete';
+  flB?: 'oak' | 'tile' | 'marble' | 'granite' | 'concrete';
+  flW?: 'oak' | 'tile' | 'marble' | 'granite' | 'concrete';
+  lt?: 'warm' | 'neutral' | 'cool';
+  car?: 'None' | 'Hatchback' | 'Sedan' | 'SUV';
+  laundry?: number;
+  conceptName?: string;
+  conceptTagline?: string;
+  roomMoods?: Record<string, { mood: string }>;
 }

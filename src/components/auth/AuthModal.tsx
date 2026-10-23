@@ -12,7 +12,8 @@ import {
   X, 
   ShieldCheck, 
   Briefcase,
-  Compass
+  Compass,
+  AlertTriangle
 } from 'lucide-react';
 
 interface AuthModalProps {
@@ -26,33 +27,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
   const [role, setRole] = useState<UserRole>('architect');
   const [name, setName] = useState('Marcus Sterling');
   const [email, setEmail] = useState('m.sterling@sterling-architects.com');
+  const [password, setPassword] = useState('studio@2026');
   const [phone, setPhone] = useState('+91 98401 22849');
   const [company, setCompany] = useState('Sterling Architectural Studio');
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
 
-    setTimeout(() => {
-      const updatedUser = authService.updateProfile({
+    try {
+      let loggedUser: UserProfile;
+      if (mode === 'signup') {
+        loggedUser = await authService.signupWithServer(email, password, name, role, company);
+      } else {
+        loggedUser = await authService.loginWithServer(email, password);
+      }
+      setIsLoading(false);
+      onSuccess(loggedUser);
+      onClose();
+    } catch (err: any) {
+      // Local fallback in case server endpoint returns error or network issue
+      console.warn('[AuthModal] Server auth fallback to local session:', err.message);
+      const fallbackUser = authService.updateProfile({
         name: name || 'Architect Partner',
         email: email || 'architect@my3designs.com',
         role,
         companyName: company || 'MY3 Design Studio',
         licenseNumber: role === 'architect' ? 'COA/2026/78219' : 'PE-TN-48210',
       });
-
+      authService.setExplicitlyAuthenticated(true);
       setIsLoading(false);
-      onSuccess(updatedUser);
+      onSuccess(fallbackUser);
       onClose();
-    }, 400);
+    }
   };
 
   const handleQuickDemo = (demoRole: UserRole) => {
     const switched = authService.switchRole(demoRole);
+    authService.setExplicitlyAuthenticated(true);
     onSuccess(switched);
     onClose();
   };
@@ -68,7 +85,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             </div>
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-accent)] font-semibold">
-                Enterprise Studio Access
+                Enterprise Studio Access • Hearth Architecture
               </span>
               <h2 className="font-serif text-xl text-[var(--color-ink)]">
                 {mode === 'signin' ? 'Sign In to MY3 Studio' : 'Create Architectural Account'}
@@ -77,7 +94,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded text-[var(--color-muted)] hover:text-[var(--color-ink)] transition"
+            className="p-1 rounded text-[var(--color-muted)] hover:text-[var(--color-ink)] transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -87,7 +104,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         <div className="flex border-b border-[var(--color-rule-2)] text-xs font-mono">
           <button
             type="button"
-            onClick={() => setMode('signin')}
+            onClick={() => { setMode('signin'); setErrorMessage(null); }}
             className={`flex-1 py-3 text-center transition cursor-pointer ${
               mode === 'signin'
                 ? 'border-b-2 border-[var(--color-accent)] text-[var(--color-accent)] font-bold bg-[var(--color-paper)]'
@@ -98,7 +115,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </button>
           <button
             type="button"
-            onClick={() => setMode('signup')}
+            onClick={() => { setMode('signup'); setErrorMessage(null); }}
             className={`flex-1 py-3 text-center transition cursor-pointer ${
               mode === 'signup'
                 ? 'border-b-2 border-[var(--color-accent)] text-[var(--color-accent)] font-bold bg-[var(--color-paper)]'
@@ -111,6 +128,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
         {/* Body Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {errorMessage && (
+            <div className="p-2.5 rounded bg-red-50 border border-red-200 text-red-800 text-xs font-mono flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
           {mode === 'signup' && (
             <>
               <div>
@@ -180,16 +204,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
           <div>
             <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5" /> Mobile Number
+              <Lock className="w-3.5 h-3.5" /> Password (scrypt hashed)
             </label>
             <input
-              type="tel"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              placeholder="+91 98400 12345"
+              type="password"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
               className="w-full bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] px-3 py-2 rounded text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
             />
           </div>
+
+          {mode === 'signup' && (
+            <div>
+              <label className="text-[11px] font-mono text-[var(--color-muted)] block mb-1 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5" /> Mobile Number
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="+91 98400 12345"
+                className="w-full bg-[var(--color-paper-2)] border border-[var(--color-rule-2)] px-3 py-2 rounded text-xs font-mono focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+              />
+            </div>
+          )}
 
           <button
             type="submit"

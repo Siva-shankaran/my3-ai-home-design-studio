@@ -27,6 +27,7 @@ import { BottomDock } from './components/editorial/BottomDock';
 import { StudioStepTracker } from './components/editorial/StudioStepTracker';
 import { WizardController } from './components/wizard/WizardController';
 import { AuthModal } from './components/auth/AuthModal';
+import { LogoutDownloadModal } from './components/auth/LogoutDownloadModal';
 import { useLenisSmoothScroll } from './animations/useLenisSmoothScroll';
 import type { Language } from './services/i18n';
 import { 
@@ -92,6 +93,7 @@ export const App: React.FC = () => {
   const [isStatsDrawerOpen, setIsStatsDrawerOpen] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
 
   // Initialize smooth scrolling with Lenis on landing page
   useLenisSmoothScroll(currentView === 'landing');
@@ -212,6 +214,7 @@ export const App: React.FC = () => {
         onOpenConceptGenerator={() => setIsConceptModalOpen(true)}
         onOpenMenu={() => setIsMenuOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenLogout={() => setIsLogoutModalOpen(true)}
         language={language}
         onToggleLanguage={() => setLanguage(l => l === 'en' ? 'ta' : 'en')}
         cadStyleMode={cadStyleMode}
@@ -534,6 +537,17 @@ export const App: React.FC = () => {
           setUser(newUser);
           authService.setExplicitlyAuthenticated(true);
           navigateTo('wizard');
+        }}
+      />
+
+      {/* Hearth Logout Flow: Download Before You Log Out Dialog */}
+      <LogoutDownloadModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirmLogout={() => {
+          authService.logout();
+          setIsLogoutModalOpen(false);
+          navigateTo('landing');
         }}
       />
     </div>
